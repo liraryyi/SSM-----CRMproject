@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration  PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--别名-->
+    <typeAliases>
+        <!--
+               package:把包下面的所有类名作为别名
+               name:实体类的包名
+        -->
+        <package name="com.liraryyi.crm.settings.domain"/>
+    </typeAliases>
+
+    <!--sql映射文件的位置-->
+    <mappers>
+        <!--
+            package:指定Dao接口的包的位置,表示把包下面的sql映射文件找到
+            name:Dao接口的包名
+            使用package指定映射文件的要求:
+              1、sql映射文件名和Dao接口名一致
+              2、sql映射文件和Dao接口在同一目录
+        -->
+        <package name="com.liraryyi.crm.settings.dao"/>
+    </mappers>
+</configuration>
