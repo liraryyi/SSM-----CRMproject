@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
@@ -27,7 +28,7 @@ public class UserController {
     @Setter @Getter
     private UserService userService;
 
-    @RequestMapping(value = "/user/login.do")
+    @RequestMapping(value = "/user/login.do",method = RequestMethod.POST)
     public void loginUser(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 
@@ -35,6 +36,7 @@ public class UserController {
          * 1.接受浏览器页面传过来的数据：账号，密码，ip地址
          * 2.调用UserService中的login方法
          */
+        System.out.println("开始login");
         //接收传过来的数据(账号，密码)
         String loginAck = request.getParameter("loginAck");
         String loginPwd = request.getParameter("loginPwd");

@@ -7,11 +7,14 @@ import com.liraryyi.crm.settings.service.UserService;
 import com.liraryyi.crm.utils.DateTimeUtil;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
+//创建Service对象
+@Service(value = "userService")
 public class UserServiceImpl implements UserService {
 
     @Resource
