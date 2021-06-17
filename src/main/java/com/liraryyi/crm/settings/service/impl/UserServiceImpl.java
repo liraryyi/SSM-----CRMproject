@@ -11,28 +11,35 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-//创建Service对象
-@Service(value = "userService")
+@Service
 public class UserServiceImpl implements UserService {
 
     @Resource
     @Setter @Getter
     private UserDao userDao;
 
-
     @Override
-    public User login(String loginAck, String loginPwd, String ip) throws LoginException {
+    public User login(String loginAct, String loginPwd, String ip) throws LoginException {
+
+        /**
+         * 调用dao层时，如何将参数传进去(多个参数)
+         * 1.使用@Param
+         * 2.使用对象
+         * 3.使用Map
+         */
 
         Map<String, String> map = new HashMap<String, String>();
-        map.put("loginAck",loginAck);
-        map.put("loginPwd", loginPwd);
+        map.put("loginAct",loginAct);
+        map.put("loginPwd",loginPwd);
 
-        User user = userDao.loginDao((HashMap) map);
+        User user = userDao.loginUser(map);
 
         //验证账号密码
         if (user == null){
+            System.out.println("账号密码错误");
             throw new LoginException("账号密码错误");
         }
 
@@ -51,11 +58,12 @@ public class UserServiceImpl implements UserService {
 
         //验证ip地址
         String ArrayIp = user.getAllowIps();
-        if (ArrayIp != null && ArrayIp != "") {
+        if ( !"".equals(ArrayIp) && ArrayIp != null) {
             if (!ArrayIp.contains(ip)) {
                 throw new LoginException("ip异常");
             }
         }
+
         return user;
     }
 }

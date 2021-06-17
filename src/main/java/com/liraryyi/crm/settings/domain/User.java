@@ -29,4 +29,23 @@ public class User {
     private String createBy;     // 创建人
     private String editTime;     // 修改时间
     private String editBy;     // 修改人
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", loginAct='" + loginAct + '\'' +
+                ", name='" + name + '\'' +
+                ", loginPwd='" + loginPwd + '\'' +
+                ", email='" + email + '\'' +
+                ", expireTime='" + expireTime + '\'' +
+                ", lockState='" + lockState + '\'' +
+                ", deptno='" + deptno + '\'' +
+                ", allowIps='" + allowIps + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", createBy='" + createBy + '\'' +
+                ", editTime='" + editTime + '\'' +
+                ", editBy='" + editBy + '\'' +
+                '}';
+    }
 }

@@ -3,14 +3,11 @@ package com.liraryyi.crm.settings.dao;
 
 import com.liraryyi.crm.settings.domain.User;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class UserDao {
+public interface UserDao {
 
-    public User loginDao(HashMap map){
-
-        return new User();
-    }
-
+    User loginUser(Map<String,String> map);
 
 }

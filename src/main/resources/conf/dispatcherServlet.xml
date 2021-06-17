@@ -21,4 +21,16 @@
          2.解决静态资源访问问题
     -->
     <mvc:annotation-driven/>
+
+    <!-- 拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--拦截全部的请求信息-->
+            <mvc:mapping path="/*"/>
+            <!--不拦截登陆页面的请求-->
+            <mvc:exclude-mapping path="/login.jsp"/>
+            <mvc:exclude-mapping path="/index.html"/>
+            <bean class="com.liraryyi.crm.interceptor.LoginInterceptor"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
 </beans>

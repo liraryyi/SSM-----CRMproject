@@ -22,7 +22,6 @@ request.getServerPort() + request.getContextPath() + "/";
 
 			//登录按钮绑定事件，进行登陆操作
 			$("#submitBtn").click(function (){
-				alert(456);
 				login();
 			})
 
@@ -38,7 +37,6 @@ request.getServerPort() + request.getContextPath() + "/";
 		function login() {
 			//账号，密码不能为空
 			//$.trim():去掉文本中的左右空格
-			alert("开始登陆");
 			var loginAct = $.trim($("#loginAct").val());
 			var loginPwd = $.trim($("#loginPwd").val());
 
@@ -46,9 +44,8 @@ request.getServerPort() + request.getContextPath() + "/";
 				$("#msg").html("账号密码不能为空")
 				return false;
 			}
-			alert("准备ajax")
 
-			//页面刷新 ajax
+			//页面局部刷新 ajax
 			$.ajax({
 
 				//url:传递到后台的地址
@@ -62,7 +59,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				dataType : "json",
 				success :function (data){
 					/**
-					 * data
+					 * data:传过来的数据json
 					 * {"success":true/false  , "msg":"错误的种类"}
 					 */
 					if (data.success){
@@ -70,7 +67,6 @@ request.getServerPort() + request.getContextPath() + "/";
 					} else {
 						$("#msg").html(data.msg);
 					}
-					alert("借宿ajax");
 				}
 			})
 		}
@@ -98,9 +94,9 @@ request.getServerPort() + request.getContextPath() + "/";
 					<div style="width: 350px; position: relative;top: 20px;">
 						<input class="form-control" type="password" placeholder="密码" id="loginPwd">
 					</div>
-					<div class="checkbox"  style="position: relative;top: 30px; left: 10px;">
+					<div class="checkbox"  style="position: relative;top: 30px; left: 10px;" >
 						
-							<span id="msg"></span>
+							<span id="msg" style="color: #ac2925"></span>
 						
 					</div>
 					<!--button在form表单中，默认type是submit-->

@@ -4,7 +4,13 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-    <!--spring配置文件 声明service，dao，工具类等对象-->
+    <!--spring配置文件 声明service，dao，工具类等对象
+        bean：在这里用bean定义实例对象，(实际上是调用对象的无参构造方法)
+        id：id是该实例的唯一标识，通过id在代码中使用该对象
+        property:调用无参构造创建对象后，会对对象属性进行初始化(这里实际上是调用对象的setter方法)
+                 name:对象中对应的属性名
+                 value:赋给属性的值
+    -->
 
     <!--声明属性配置文件的位置-->
     <context:property-placeholder location="classpath:conf/jdbc.properties"/>
@@ -29,7 +35,10 @@
         <property name="basePackage" value="com.liraryyi.crm.settings.dao"/>
     </bean>
 
-    <!--声明组件扫描器，service的注解@service所在的包名位置-->
+    <!--声明组件扫描器：spring就会去自动扫描base-package对应的路径或者该路径的子包下面的java文件，
+                     如果扫描到文件中带有@Service,@Component,@Repository,@Controller等这些注解的类，
+                     则把这些类注册为bean
+    -->
     <context:component-scan base-package="com.liraryyi.crm.settings.service"/>
 
     <!--事务配置：注解的配置，aspectj的配置-->

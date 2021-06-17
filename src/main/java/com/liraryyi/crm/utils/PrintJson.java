@@ -35,7 +35,7 @@ public class PrintJson {
 		
 	}
 	
-	//将对象解析为json串
+	//将对象解析为json串并返回
 	public static void printJsonObj(HttpServletResponse response,Object obj){
 		
 		/*
