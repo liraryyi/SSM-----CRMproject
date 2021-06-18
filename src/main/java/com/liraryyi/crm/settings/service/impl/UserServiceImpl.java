@@ -21,6 +21,7 @@ public class UserServiceImpl implements UserService {
     @Setter @Getter
     private UserDao userDao;
 
+    //登录
     @Override
     public User login(String loginAct, String loginPwd, String ip) throws LoginException {
 
@@ -65,5 +66,12 @@ public class UserServiceImpl implements UserService {
         }
 
         return user;
+    }
+
+    //拿到tbluser表中的所有信息
+    @Override
+    public List<User> getUser() {
+        List<User> list = userDao.selectUser();
+        return list;
     }
 }

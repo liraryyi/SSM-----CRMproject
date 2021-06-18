@@ -29,6 +29,7 @@ public class UserController {
     @Resource @Setter @Getter
     private UserService userService;
 
+    //登录
     //ajax请求 方法的返回值为void
     @RequestMapping(value = "/user/login.do")
     public void loginUser(HttpServletRequest request, HttpServletResponse response) throws IOException {

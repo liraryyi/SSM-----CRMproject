@@ -32,7 +32,7 @@
     <!--声明mybatis的扫描器，创建dao对象-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
-        <property name="basePackage" value="com.liraryyi.crm.settings.dao"/>
+        <property name="basePackage" value="com.liraryyi.crm.settings.dao , com.liraryyi.crm.workbench.dao"/>
     </bean>
 
     <!--声明组件扫描器：spring就会去自动扫描base-package对应的路径或者该路径的子包下面的java文件，
@@ -40,6 +40,7 @@
                      则把这些类注册为bean
     -->
     <context:component-scan base-package="com.liraryyi.crm.settings.service"/>
+    <context:component-scan base-package="com.liraryyi.crm.workbench.service"/>
 
     <!--事务配置：注解的配置，aspectj的配置-->
 </beans>

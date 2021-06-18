@@ -69,4 +69,21 @@
         <filter-name>characterEncodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <!--使用过滤器实现登陆控制-->
+    <!--filter标签用于声明过滤器对象-->
+    <filter>
+        <!--过滤器名称-->
+        <filter-name>LoginFilter</filter-name>
+        <!--过滤器完整类名-->
+        <filter-class>com.liraryyi.crm.filter.LoginFilter</filter-class>
+        </filter>
+        <!--filter-mapping用于创建过滤器的映射，指定Web应用中，哪些URL应用哪一个过滤器进行处理-->
+        <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <!--url-pattern用于指定过滤器应用的URL-->
+        <!--过滤的页面(自定义),这里对登录界面就不要过滤了-->
+            <url-pattern>*.do</url-pattern>
+            <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
 </web-app>

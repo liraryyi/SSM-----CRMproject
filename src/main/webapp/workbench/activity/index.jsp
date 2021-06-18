@@ -1,21 +1,68 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+String basePath = request.getScheme() + "://" + request.getServerName() + ":" +
+request.getServerPort() + request.getContextPath() + "/";
+%>
 <!DOCTYPE html>
 <html>
 <head>
+	<base href="<%=basePath%>">
 <meta charset="UTF-8">
 
-<link href="../../jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-<link href="../../jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
+<link href="jquery/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+<link href="jquery/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css" type="text/css" rel="stylesheet" />
 
-<script type="text/javascript" src="../../jquery/jquery-1.11.1-min.js"></script>
-<script type="text/javascript" src="../../jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="../../jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
-<script type="text/javascript" src="../../jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
+<script type="text/javascript" src="jquery/jquery-1.11.1-min.js"></script>
+<script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
+<script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
 <script type="text/javascript">
 
 	$(function(){
-		
-		
+
+		//为”创建“按钮绑定事件，点击打开模态窗口
+		$("#addBtn").click(function (){
+			/**
+			 * 操作模态窗口的方式:
+			 *   需要操作窗口的jquery对象，调用model方法，为该方法传递参数 show：打开模态窗口   hide：关闭模态窗口
+			 */
+
+			$("#createActivityModal").modal("show");
+		})
+
+		//为”修改“按钮绑定事件，点击打开模态窗口
+		$("#updateBtn").click(function (){
+
+			$("#editActivityModal").modal("show");
+		})
+
+		//createActivityModal模态窗口打开后，所有者下拉栏显示数据库中的用户姓名
+		$.ajax({
+
+			url:"workbench/activity/getUserList.do",
+			data :{
+			},
+			type:"get",
+			dataType : "json",
+			success :function (data){
+
+				/**
+				 * 这里data拿到的数据是含有用户对象的数组
+				 * data
+				 *   【{用户1}, {2}, {3}...】
+				 */
+
+				var html = "<option></option>";
+
+				//遍历出来的每一个n，就是每一个user对象
+				$.each(data,function (i,n){
+					html += "<option value='"+n.id+"'>"+n.name+"</option>";
+				})
+
+				$("#create-marketActivityOwner").html(html);
+			}
+		})
 		
 	});
 	
@@ -41,9 +88,7 @@
 							<label for="create-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="create-marketActivityOwner">
-								  <option>zhangsan</option>
-								  <option>lisi</option>
-								  <option>wangwu</option>
+
 								</select>
 							</div>
                             <label for="create-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
@@ -202,8 +247,21 @@
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createActivityModal"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+					<!--
+					      点击创建按钮，观察两个属性和属性值
+
+					      data-toggle = "model": 表示触发该按钮，将要打开一个模态窗口
+
+					      data-target = "#createActivityModal":表示要打开哪一个模态窗口
+
+					      目前这2个模态窗口是以属性和属性值的方式写在button元素中，用来打开模态窗口，
+					      问题：没有办法对按钮的功能进行扩充，写死了。
+
+					      实际的项目开发中，这样的操作应该通过js代码来操作
+
+					-->
+				  <button type="button" class="btn btn-primary" id = "addBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" class="btn btn-default" id = "updateBtn"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				

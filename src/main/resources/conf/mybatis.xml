@@ -9,6 +9,7 @@
                name:实体类的包名
         -->
         <package name="com.liraryyi.crm.settings.domain"/>
+        <package name="com.liraryyi.crm.workbench.domain"/>
     </typeAliases>
 
     <!--sql映射文件的位置-->
@@ -21,5 +22,6 @@
               2、sql映射文件和Dao接口在同一目录
         -->
         <package name="com.liraryyi.crm.settings.dao"/>
+        <package name="com.liraryyi.crm.workbench.dao"/>
     </mappers>
 </configuration>
