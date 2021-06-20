@@ -12,4 +12,6 @@ public interface UserService{
     User login(String loginAck, String loginPwd, String ip) throws LoginException;
 
     List<User> getUser();
+
+
 }
