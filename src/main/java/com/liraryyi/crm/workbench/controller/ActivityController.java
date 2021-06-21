@@ -76,8 +76,7 @@ public class ActivityController {
     //分页查询市场活动信息
     @RequestMapping(value = "/activity/pageList.do")
     public void getActivity(HttpServletRequest request,HttpServletResponse response){
-        System.out.println("111");
-        System.out.println("pagelist controller go");
+
         String pageNo = request.getParameter("pageNo");
         String pageSize = request.getParameter("pageSize");
         String name = request.getParameter("name");
@@ -109,7 +108,66 @@ public class ActivityController {
          * vo：适用于多次传递
          */
         PageListVo<Activity> pageListVo = activityService.selectActivityList(map);
-        System.out.println("pagelist controller end");
         PrintJson.printJsonObj(response,pageListVo);
+    }
+
+    //删除复选框选中的数据，并且联系上另一个表
+    @RequestMapping(value = "/activity/delete.do")
+    public void deleteActivity(HttpServletRequest request,HttpServletResponse response){
+
+        System.out.println("controller start");
+        //传过来的数据为id=xxx&id=xxx，可以采用数组统一接收getParameterValues
+        String[] ids = request.getParameterValues("id");
+
+        System.out.println(ids);
+        for (int i = 0; i < ids.length; i++) {
+            System.out.println(ids[i]);
+        }
+
+        boolean flag = activityService.deleteActivityList(ids);
+
+        System.out.println("controller end");
+        PrintJson.printJsonFlag(response,flag);
+    }
+
+    //查询点击的复选框中的活动信息
+    @ResponseBody
+    @RequestMapping(value = "/activity/getActivityList.do")
+    public Activity getAllActivity(HttpServletRequest request){
+
+        String id = request.getParameter("id");
+
+        Activity activity = activityService.selectAllActivity(id);
+
+        return activity;
+    }
+
+    //保存更新修改后的市场活动信息
+    @RequestMapping(value = "/activity/updateActivity.do")
+    public void updateActivityList(HttpServletRequest request,HttpServletResponse response){
+
+        System.out.println("update controller start");
+        String id = request.getParameter("edit-id");
+        String owner = request.getParameter("edit-marketActivityOwner");
+        String name = request.getParameter("edit-marketActivityName");
+        String startDate = request.getParameter("edit-startTime");
+        String endDate = request.getParameter("edit-endTime");
+        String cost = request.getParameter("edit-cost");
+        String describe = request.getParameter("edit-describe");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("id",id);
+        map.put("owner",owner);
+        map.put("name",name);
+        map.put("startDate",startDate);
+        map.put("endDate",endDate);
+        map.put("cost",cost);
+        map.put("describe",describe);
+
+        boolean success = activityService.updateActivity(map);
+
+        System.out.println("update controller end");
+
+        PrintJson.printJsonFlag(response,success);
     }
 }

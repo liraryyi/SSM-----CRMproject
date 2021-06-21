@@ -74,19 +74,117 @@ request.getServerPort() + request.getContextPath() + "/";
 
 		})
 
-
 		//为”修改“按钮绑定事件，点击打开模态窗口
 		$("#updateBtn").click(function (){
 
-			$("#editActivityModal").modal("show");
+			//修改时应该只能修改选中的唯一一个复选框的信息
+			var $xz = $("input[name = subSelectBox]:checked");
+			alert($xz.val());
+			if ($xz.length == 0){
+				alert("请选择您想修改的活动")
+			}else if ($xz.length > 1){
+				alert("不能同时修改多个活动的信息")
+			}else {
+
+				//editActivityModal模态窗口打开后，所有者下拉栏显示数据库中的用户姓名
+				$.ajax({
+
+					url:"workbench/activity/getUserList.do",
+					data :{
+					},
+					type:"get",
+					dataType : "json",
+					success :function (data){
+
+						/**
+						 * 这里data拿到的数据是含有用户对象的数组
+						 * data
+						 *   【{用户1}, {2}, {3}...】
+						 */
+
+						var html = "<option></option>";
+
+						//遍历出来的每一个n，就是每一个user对象
+						$.each(data,function (i,n){
+							html += "<option value='"+n.id+"'>"+n.name+"</option>";
+						})
+
+						/**
+						 * 取得当前登录的用户的id，放在下拉框的默认选项中
+						 * 可以使用el表达式，但是js中的el表达式一定要套用在字符串中
+						 */
+
+						$("#edit-marketActivityOwner").html(html);
+
+						var id = "${user.id}"
+						$("#edit-marketActivityOwner").val(id);
+
+					}
+				})
+
+				//editActivityModal模态窗口打开后，将该Activity中的数据查询出来
+				$.ajax({
+
+					url:"workbench/activity/getActivityList.do",
+					data :{
+						"id": $xz.val(),
+					},
+					type:"get",
+					dataType : "json",
+					success :function (data){
+
+						$("#edit-marketActivityName").val(data.name);
+						$("#edit-startTime").val(data.startDate);
+						$("#edit-endTime").val(data.endDate);
+						$("#edit-cost").val(data.cost);
+						$("#edit-describe").val(data.description);
+					}
+				})
+
+				$("#editActivityModal").modal("show");
+			}
+		})
+
+		//为更新按钮绑定事件，点击将已经修改的信息保存到数据库中
+		$("#edit-updateBtn").click(function (){
+
+			var $xz = $("input[name = subSelectBox]:checked");
+			$.ajax({
+
+				url:"workbench/activity/updateActivity.do",
+				data :{
+					"edit-id":$xz.val(),
+					"edit-marketActivityOwner": $.trim($("#edit-marketActivityOwner").val()),   //创建市场活动的人
+					"edit-marketActivityName": $.trim($("#edit-marketActivityName").val()),     //创建的市场活动的名称
+					"edit-startTime": $.trim($("#edit-startTime").val()),                       //市场活动开始时间
+					"edit-endTime":$.trim($("#edit-endTime").val()),                            //市场活动结束时间
+					"edit-cost":$.trim($("#edit-cost").val()),                                  //市场活动费用
+					"edit-describe":$.trim($("#edit-describe").val())          //市场活动描述
+				},
+				type:"post",
+				dataType : "json",
+				success :function (data){
+
+					//传过来的数据success
+					if (data.success){
+						$("#editActivityModal").modal("hide");
+						pageList(1, 3);
+					}else {
+						alert("保存失败")
+					}
+				}
+			})
 		})
 
 		//为”查询按钮绑定事件，点击查询“
-		$("#111").click(function (){
-			pageList(1, 3);
-		})
+        //点击查询的同时将搜索框中数据保存到隐藏域中
+		$("#getActivityListBtn").click(function (){
 
-		$("#222").click(function (){
+            $("#hidden-name").val($.trim($("#search-name").val()));
+            $("#hidden-owner").val($.trim($("#search-owner").val()));
+            $("#hidden-startDate").val($.trim($("#search-startTime").val()));
+            $("#hidden-endDate").val($.trim($("#search-endTime").val()))
+
 			pageList(1, 3);
 		})
 
@@ -107,7 +205,6 @@ request.getServerPort() + request.getContextPath() + "/";
 			todayBtn: true,
 			pickerPosition: "bottom-left"
 		});
-
 
 		//为创建模态窗口的保存按钮添加事件，实现信息的保存
 		$("#saveBtn").click(function (){
@@ -144,6 +241,72 @@ request.getServerPort() + request.getContextPath() + "/";
 			pageList(1, 3);
 		})
 
+        //为selectBox选择框绑定事件，点击全选下面的选择框
+        $("#selectBox").click(function (){
+            $("input[name = subSelectBox]").prop("checked",this.checked);
+        })
+
+        //为subSelectBox选择框绑定事件，当subSelectBox全部为checked的时候，将selectBox状态变为checked
+        /*$("#subSelectBox").click(function (){
+            alert(123);
+        })
+        而上面这种方法是不行的，这是因为动态生成的元素，是不能够以普通绑定事件的形式来进行操作
+
+        动态生成的元素，需要以on方法的形式来触发事件
+
+        语法：
+            $(需要绑定元素的有效的外层元素).on(绑定事件的方式，需要绑定的元素的jquery对象，回调函数)
+        */
+        $("#activityList").on("click",$("input[name = subSelectBox]"),function (){
+
+            $("#selectBox").prop("checked",$("input[name = subSelectBox]").length == $("input[name = subSelectBox]:checked").length);
+        })
+
+		//为delete按钮绑定事件，点击按复选框（subSelectBox）的checked状态删除查询数据
+		$("#deleteBtn").click(function (){
+
+			//找到复选框中所有checked的jquery对象
+			var $xz = $("input[name = subSelectBox]:checked");
+
+			if ($xz.length == 0){
+				alert("请选择需要删除的记录");
+			}else {
+
+				//url:workbench/activity/delete.do?id=xxx&id=xxx
+				//拼接参数
+				var param = "";
+
+				//遍历$xz中的每一个dom对象遍历出来，取其value值》取得需要删除的记录的id
+				for (var i = 0; i < $xz.length; i++) {
+
+					param += "id=" + $($xz[i]).val();
+					if (i < $xz.length - 1){
+						param += "&"
+					}
+				}
+				alert(param)
+				if (confirm("是否打算删除该数据")){
+					$.ajax({
+
+						url:"workbench/activity/delete.do",
+						data : param,
+						type:"post",
+						dataType : "json",
+						success :function (data){
+							//需要传递出来的信息：success：true or false
+							if (data.success){
+								//删除成功后刷新当前页
+								pageList(1, 3)
+							}else {
+								alert("数据删除失败")
+							}
+						}
+					})
+				}
+			}
+		})
+
+		//进入当前页面时自动刷新
 		pageList(1, 3)
 	});
 
@@ -162,6 +325,15 @@ request.getServerPort() + request.getContextPath() + "/";
 	 * 4.点击分页组件的时候
 	 */
 	function pageList(pageNo, pageSize){
+
+		//将全选框和复选框中checked状态干掉
+		$("#selectBox").prop("checked",false);
+
+        //使用ajax进行局部刷新前，将隐藏域中保存的值赋给搜索框中的值
+        $("#search-name").val($.trim($("#hidden-name").val()));
+        $("#search-owner").val($.trim($("#hidden-owner").val()));
+        $("#search-startTime").val($.trim($("#hidden-startDate").val()));
+        $("#search-endTime").val($.trim($("#hidden-endDate").val()))
 
 		$.ajax({
 
@@ -193,8 +365,8 @@ request.getServerPort() + request.getContextPath() + "/";
 				//每一个n就是一个市场活动对象
 				$.each(data.list,function (i,n){
 				html +='<tr class="active">';
-				html +='	<td><input type="checkbox" value="'+n.id+'" /></td>';
-				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/acticity/detail.jsp\';">'+n.name+'</a></td>';
+				html +='	<td><input type="checkbox" name="subSelectBox" value="'+n.id+'" /></td>';
+				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/activity/detail.jsp\';">'+n.name+'</a></td>';
 				html +='	<td>'+n.owner+'</td>';
 				html +='	<td>'+n.startDate+'</td>';
 				html +='	<td>'+n.endDate+'</td>';
@@ -236,6 +408,12 @@ request.getServerPort() + request.getContextPath() + "/";
 </script>
 </head>
 <body>
+
+    <!--用隐藏域储存搜索框中填写的信息-->
+    <input type="hidden" id="hidden-name"/>
+    <input type="hidden" id="hidden-owner"/>
+    <input type="hidden" id="hidden-startDate"/>
+    <input type="hidden" id="hidden-endDate"/>
 
 	<!-- 创建市场活动的模态窗口 -->
 	<div class="modal fade" id="createActivityModal" role="dialog">
@@ -317,39 +495,43 @@ request.getServerPort() + request.getContextPath() + "/";
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="edit-marketActivityOwner">
-								  <option>zhangsan</option>
-								  <option>lisi</option>
-								  <option>wangwu</option>
+
 								</select>
 							</div>
                             <label for="edit-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
                             <div class="col-sm-10" style="width: 300px;">
-                                <input type="text" class="form-control" id="edit-marketActivityName" value="发传单">
+                                <input type="text" class="form-control" id="edit-marketActivityName">
                             </div>
 						</div>
 
 						<div class="form-group">
 							<label for="edit-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-startTime" value="2020-10-10">
+								<input type="text" class="form-control" id="edit-startTime">
 							</div>
 							<label for="edit-endTime" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-endTime" value="2020-10-20">
+								<input type="text" class="form-control" id="edit-endTime">
 							</div>
 						</div>
 						
 						<div class="form-group">
 							<label for="edit-cost" class="col-sm-2 control-label">成本</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control" id="edit-cost" value="5,000">
+								<input type="text" class="form-control" id="edit-cost">
 							</div>
 						</div>
 						
 						<div class="form-group">
 							<label for="edit-describe" class="col-sm-2 control-label">描述</label>
 							<div class="col-sm-10" style="width: 81%;">
-								<textarea class="form-control" rows="3" id="edit-describe">市场活动Marketing，是指品牌主办或参与的展览会议与公关市场活动，包括自行主办的各类研讨会、客户交流会、演示会、新产品发布会、体验会、答谢会、年会和出席参加并布展或演讲的展览会、研讨会、行业交流会、颁奖典礼等</textarea>
+								<!--
+								     关于文本域textarea
+								        1.一定是要以标签对的形式来呈现，正常状态下标签需要紧紧的挨着
+								        2.textarea虽然以标签对的形式呈现，但是他也是属于表单元素范畴
+								          所有的对于textarea的取值和赋值操作，应该统一使用val()方法
+								-->
+								<textarea class="form-control" rows="3" id="edit-describe"></textarea>
 							</div>
 						</div>
 						
@@ -358,7 +540,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">更新</button>
+					<button type="button" class="btn btn-primary" id="edit-updateBtn">更新</button>
 				</div>
 			</div>
 		</div>
@@ -408,9 +590,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				    </div>
 				  </div>
 
-				  <button type="button" id="111" class="btn btn-default" >查询</button>
-
-				  <button type="button" id="222">查询2</button>
+				  <button type="button" id="getActivityListBtn" class="btn btn-default" >查询</button>
 				</form>
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 5px;">
@@ -430,7 +610,7 @@ request.getServerPort() + request.getContextPath() + "/";
 					-->
 				  <button type="button" class="btn btn-primary" id = "addBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" id = "updateBtn"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-danger"  id = "deleteBtn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				
 			</div>
@@ -438,7 +618,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				<table class="table table-hover">
 					<thead>
 						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
+							<td><input type="checkbox" id="selectBox" /></td>
 							<td>名称</td>
                             <td>所有者</td>
 							<td>开始日期</td>

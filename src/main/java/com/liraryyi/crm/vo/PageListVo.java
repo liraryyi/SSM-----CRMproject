@@ -9,4 +9,7 @@ import java.util.List;
 public class PageListVo<T> {
     private int total;
     private List<T> list;
+
+
+
 }

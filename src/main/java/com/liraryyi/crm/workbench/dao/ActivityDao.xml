@@ -59,4 +59,38 @@
             </if>
         </where>
     </select>
+
+    <delete id="deleteActivityByIds">
+        delete from tbl_activity
+        where id in
+        <foreach collection="array" item="ids" open="(" close=")" separator=",">
+            #{ids}
+        </foreach>
+    </delete>
+
+    <select id="selectAllActivity" resultType="Activity">
+        select
+            a.name,
+            u.name as owner,
+            a.startDate,
+            a.endDate,
+            a.cost,
+            a.description
+
+        from tbl_activity a
+        join tbluser u
+        on a.owner = u.id
+
+        where a.id = #{id}
+    </select>
+
+    <update id="updateActivityById">
+        update tbl_activity set
+        name = #{name},
+        startDate = #{startDate},
+        endDate = #{endDate},
+        cost = #{cost},
+        description = #{describe}
+        where id = #{id}
+    </update>
 </mapper>
