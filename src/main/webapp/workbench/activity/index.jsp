@@ -79,7 +79,6 @@ request.getServerPort() + request.getContextPath() + "/";
 
 			//修改时应该只能修改选中的唯一一个复选框的信息
 			var $xz = $("input[name = subSelectBox]:checked");
-			alert($xz.val());
 			if ($xz.length == 0){
 				alert("请选择您想修改的活动")
 			}else if ($xz.length > 1){
@@ -167,8 +166,24 @@ request.getServerPort() + request.getContextPath() + "/";
 
 					//传过来的数据success
 					if (data.success){
+						$("#activityUpdateForm")[0].reset();
+
 						$("#editActivityModal").modal("hide");
-						pageList(1, 3);
+
+						//更新后，原本在哪一页，应该回到哪一页
+						/*
+						bootstrap的插件
+						pageList($("#activityPage").bs_pagination('getOption', 'currentPage')
+								,$("#activityPage").bs_pagination('getOption', 'rowsPerPage'));
+
+						操作后停留在当前页面
+						$("#activityPage").bs_pagination('getOption', 'currentPage')
+
+						操作后维持已经设置好的每页展现的记录数
+						$("#activityPage").bs_pagination('getOption', 'rowsPerPage')
+						*/
+						pageList($("#activityPage").bs_pagination('getOption', 'currentPage')
+								,$("#activityPage").bs_pagination('getOption', 'rowsPerPage'));
 					}else {
 						alert("保存失败")
 					}
@@ -232,13 +247,14 @@ request.getServerPort() + request.getContextPath() + "/";
 						$("#activityAddForm")[0].reset();
 
 						$("#createActivityModal").modal("hide");
+
+						pageList(1,$("#activityPage").bs_pagination('getOption', 'rowsPerPage'));
 					}else{
 						//如果数据存储失败，弹出一个弹框提示
 						alert("市场活动保存失败！");
 					}
 				}
 			})
-			pageList(1, 3);
 		})
 
         //为selectBox选择框绑定事件，点击全选下面的选择框
@@ -296,7 +312,8 @@ request.getServerPort() + request.getContextPath() + "/";
 							//需要传递出来的信息：success：true or false
 							if (data.success){
 								//删除成功后刷新当前页
-								pageList(1, 3)
+								pageList($("#activityPage").bs_pagination('getOption', 'currentPage')
+										,$("#activityPage").bs_pagination('getOption', 'rowsPerPage'));
 							}else {
 								alert("数据删除失败")
 							}
@@ -366,7 +383,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				$.each(data.list,function (i,n){
 				html +='<tr class="active">';
 				html +='	<td><input type="checkbox" name="subSelectBox" value="'+n.id+'" /></td>';
-				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/activity/detail.jsp\';">'+n.name+'</a></td>';
+				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/activity/detail.do?id='+n.id+'\';">'+n.name+'</a></td>';
 				html +='	<td>'+n.owner+'</td>';
 				html +='	<td>'+n.startDate+'</td>';
 				html +='	<td>'+n.endDate+'</td>';
@@ -489,7 +506,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				</div>
 				<div class="modal-body">
 				
-					<form class="form-horizontal" role="form">
+					<form class="form-horizontal" role="form" id="activityUpdateForm">
 					
 						<div class="form-group">
 							<label for="edit-marketActivityOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>

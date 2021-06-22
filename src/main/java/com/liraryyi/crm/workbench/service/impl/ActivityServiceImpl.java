@@ -90,14 +90,20 @@ public class ActivityServiceImpl implements ActivityService {
 
         boolean flag = true;
 
-        System.out.println("update service start");
         int count = activityDao.updateActivityById(map);
 
         if (count != 1){
             flag = false;
         }
 
-        System.out.println("update service end");
         return flag;
+    }
+
+    @Override
+    public Activity selectDetailActivityById(String id) {
+
+        Activity activity = activityDao.selectDetailActivityById(id);
+
+        return activity;
     }
 }

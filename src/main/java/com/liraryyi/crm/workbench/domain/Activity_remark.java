@@ -16,4 +16,17 @@ public class Activity_remark {
     private String editFlag;   //
     private String activityId;   //
 
+    @Override
+    public String toString() {
+        return "Activity_remark{" +
+                "id='" + id + '\'' +
+                ", noteContent='" + noteContent + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", createBy='" + createBy + '\'' +
+                ", editTime='" + editTime + '\'' +
+                ", editBy='" + editBy + '\'' +
+                ", editFlag='" + editFlag + '\'' +
+                ", activityId='" + activityId + '\'' +
+                '}';
+    }
 }

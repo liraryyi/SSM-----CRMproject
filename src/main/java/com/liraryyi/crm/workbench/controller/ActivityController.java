@@ -7,12 +7,15 @@ import com.liraryyi.crm.utils.PrintJson;
 import com.liraryyi.crm.utils.UUIDUtil;
 import com.liraryyi.crm.vo.PageListVo;
 import com.liraryyi.crm.workbench.domain.Activity;
+import com.liraryyi.crm.workbench.domain.Activity_remark;
 import com.liraryyi.crm.workbench.service.ActivityService;
+import com.liraryyi.crm.workbench.service.Activity_remarkService;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +33,9 @@ public class ActivityController {
 
     @Resource @Getter @Setter
     private ActivityService activityService;
+
+    @Resource @Getter @Setter
+    private Activity_remarkService activity_remarkService;
 
     //这里的方法是要拿到tbluser表中的User数据，所以相对应的业务层应该调用UserService
     //返回对象，需要使用@ResponseBody 注解， 将转换后的JSON数据放入到响应体中
@@ -57,6 +63,7 @@ public class ActivityController {
         String createTime = DateTimeUtil.getSysTime();
         //创建人为当前登录的用户
         String createBy =((User)request.getSession().getAttribute("user")).getName();
+
         Map<String, String> map = new HashMap<String, String>();
         map.put("id",id);
         map.put("owner", owner);
@@ -83,7 +90,6 @@ public class ActivityController {
         String owner = request.getParameter("owner");
         String startTime = request.getParameter("startTime");
         String endTime = request.getParameter("endTime");
-        System.out.println(name + owner + startTime +endTime);
 
         int pageNoInt = Integer.valueOf(pageNo);
         int pageSizeInt = Integer.valueOf(pageSize);
@@ -146,7 +152,6 @@ public class ActivityController {
     @RequestMapping(value = "/activity/updateActivity.do")
     public void updateActivityList(HttpServletRequest request,HttpServletResponse response){
 
-        System.out.println("update controller start");
         String id = request.getParameter("edit-id");
         String owner = request.getParameter("edit-marketActivityOwner");
         String name = request.getParameter("edit-marketActivityName");
@@ -154,6 +159,10 @@ public class ActivityController {
         String endDate = request.getParameter("edit-endTime");
         String cost = request.getParameter("edit-cost");
         String describe = request.getParameter("edit-describe");
+        //创建时间为当前系统时间
+        String editTime = DateTimeUtil.getSysTime();
+        //创建人为当前登录的用户
+        String editBy =((User)request.getSession().getAttribute("user")).getName();
 
         Map<String, String> map = new HashMap<>();
         map.put("id",id);
@@ -163,11 +172,99 @@ public class ActivityController {
         map.put("endDate",endDate);
         map.put("cost",cost);
         map.put("describe",describe);
+        map.put("editTime",editTime);
+        map.put("editBy",editBy);
 
         boolean success = activityService.updateActivity(map);
 
-        System.out.println("update controller end");
 
+        PrintJson.printJsonFlag(response,success);
+    }
+
+    //点击市场活动，跳转到详细信息栏
+    @RequestMapping(value = "/activity/detail.do")
+    public ModelAndView getDetailActivity(String id){
+
+        ModelAndView mv = new ModelAndView();
+
+        Activity activity = activityService.selectDetailActivityById(id);
+
+        mv.addObject("activity",activity);
+        mv.setViewName("detail.jsp");
+
+        return mv;
+    }
+
+    //得到备注活动信息列表
+    @ResponseBody
+    @RequestMapping(value = "/activity/getRemarkActivityList.do")
+    public List<Activity_remark> getActivity_remarkList(HttpServletRequest request){
+
+        String id = request.getParameter("activityId");
+
+        List<Activity_remark> list = activity_remarkService.getActivity_remarkListById(id);
+
+        return list;
+    }
+
+    //根据id删除备注活动信息列表
+    @RequestMapping(value = "/activity/deleteRemark.do")
+    public void  deleteRemark(HttpServletRequest request,HttpServletResponse response){
+
+        String id = request.getParameter("id");
+
+        boolean success = activity_remarkService.deleteRemarkById(id);
+
+        PrintJson.printJsonFlag(response,success);
+    }
+
+    //保存备注活动信息
+    @RequestMapping(value = "/activity/saveRemarkActivity.do")
+    public void saveRemarkActivity(HttpServletRequest request,HttpServletResponse response){
+
+        String id = UUIDUtil.getUUID();
+        String noteContent = request.getParameter("noteContext");
+        String activityId = request.getParameter("activityId");
+        //创建时间为当前系统时间
+        String createTime = DateTimeUtil.getSysTime();
+        //创建人为当前登录的用户
+        String createBy =((User)request.getSession().getAttribute("user")).getName();
+
+        Map<String,String> map = new HashMap<>();
+        map.put("id",id);
+        map.put("noteContent",noteContent);
+        map.put("activityId",activityId);
+        map.put("createTime",createTime);
+        map.put("createBy",createBy);
+
+        boolean success = activity_remarkService.saveRemarkActivityMap(map);
+
+        PrintJson.printJsonFlag(response,success);
+    }
+
+    //更新备注活动信息
+    @RequestMapping(value = "/activity/updateRemark.do")
+    public void updateRemarkActivity(HttpServletRequest request,HttpServletResponse response){
+
+        System.out.println("updateRemark controller start");
+        String id = request.getParameter("id");
+        String noteContent = request.getParameter("noteContent");
+        //创建时间为当前系统时间
+        String editTime = DateTimeUtil.getSysTime();
+        //创建人为当前登录的用户
+        String editBy =((User)request.getSession().getAttribute("user")).getName();
+        String editFlag = "1";
+
+        Map<String , String > map = new HashMap<>();
+        map.put("id",id);
+        map.put("noteContent",noteContent);
+        map.put("editTime",editTime);
+        map.put("editBy",editBy);
+        map.put("editFlag",editFlag);
+
+        boolean success = activity_remarkService.updateRemark(map);
+
+        System.out.println("updateRemark controller end");
         PrintJson.printJsonFlag(response,success);
     }
 }

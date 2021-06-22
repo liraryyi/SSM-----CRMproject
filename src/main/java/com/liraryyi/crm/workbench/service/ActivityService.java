@@ -18,4 +18,6 @@ public interface ActivityService {
     Activity selectAllActivity(String id);
 
     boolean updateActivity(Map<String,String> map);
+
+    Activity selectDetailActivityById(String id);
 }
