@@ -40,7 +40,8 @@
                      则把这些类注册为bean
     -->
     <context:component-scan base-package="com.liraryyi.crm.settings.service"/>
-    <context:component-scan base-package="com.liraryyi.crm.workbench.service"/>
+    <context:component-scan base-package="com.liraryyi.crm.workbench.service.impl"/>
 
+    <context:annotation-config/>
     <!--事务配置：注解的配置，aspectj的配置-->
 </beans>

@@ -225,6 +225,7 @@ public class ActivityController {
         String id = UUIDUtil.getUUID();
         String noteContent = request.getParameter("noteContext");
         String activityId = request.getParameter("activityId");
+        String editFlag = "0";
         //创建时间为当前系统时间
         String createTime = DateTimeUtil.getSysTime();
         //创建人为当前登录的用户
@@ -234,6 +235,7 @@ public class ActivityController {
         map.put("id",id);
         map.put("noteContent",noteContent);
         map.put("activityId",activityId);
+        map.put("editFlag",editFlag);
         map.put("createTime",createTime);
         map.put("createBy",createBy);
 

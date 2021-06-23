@@ -36,7 +36,7 @@
     </delete>
 
     <insert id="insertRemarkActivity">
-        insert into tbl_activity_remark(id,noteContent, createTime, createBy, activityId) values(#{id},#{noteContent}, #{createTime}, #{createBy}, #{activityId})
+        insert into tbl_activity_remark(id,noteContent, createTime, createBy, editFlag,activityId) values(#{id},#{noteContent}, #{createTime}, #{createBy}, #{editFlag},#{activityId})
     </insert>
 
     <update id="updateRemarkById">
