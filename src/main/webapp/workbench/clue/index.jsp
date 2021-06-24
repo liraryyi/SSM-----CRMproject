@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 String basePath = request.getScheme() + "://" + request.getServerName() + ":" +
 request.getServerPort() + request.getContextPath() + "/";
@@ -17,6 +18,10 @@ request.getServerPort() + request.getContextPath() + "/";
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
 
+	<!--分页查询的插件-->
+	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination/jquery.bs_pagination.min.css">
+	<script type="text/javascript" src="jquery/bs_pagination/jquery.bs_pagination.min.js"></script>
+	<script type="text/javascript" src="jquery/bs_pagination/en.js"></script>
 <script type="text/javascript">
 
 	$(function(){
@@ -49,10 +54,123 @@ request.getServerPort() + request.getContextPath() + "/";
 
 			$("#createClueModal").modal("show");
 		})
-		
-		
+
+		//为保存按钮绑定事件，点击将已经填写好的数据保存到数据库中
+		$("#saveBtn").click(function (){
+
+			$.ajax({
+
+				url:"workbench/clue/saveClue.do",
+				data :{
+
+					"owner":$.trim($("#create-clueOwner").val()),
+					"company":$.trim($("#create-company").val()),
+					"appellation":$.trim($("#create-call").val()),
+					"fullname":$.trim($("#create-surname").val()),
+					"job":$.trim($("#create-job").val()),
+					"email":$.trim($("#create-email").val()),
+					"phone":$.trim($("#create-phone").val()),
+					"website":$.trim($("#create-website").val()),
+					"mphone":$.trim($("#create-mphone").val()),
+					"state":$.trim($("#create-status").val()),
+					"source":$.trim($("#create-source").val()),
+					"describe":$.trim($("#create-describe").val()),
+					"contactSummary":$.trim($("#create-contactSummary").val()),
+					"nextContactTime":$.trim($("#create-nextContactTime").val()),
+					"address":$.trim($("#create-address").val()),
+				},
+				type:"post",
+				dataType : "json",
+				success :function (data){
+					if (data.success){
+						updatePageList(1,3);
+						$("#createClueModal").modal("hide");
+					}else {
+						alert("保存失败")
+					}
+				}
+			})
+		})
+
+		updatePageList(1,3)
 	});
-	
+
+	//刷新页面
+	function updatePageList(pageNo,pageSize){
+
+		$.ajax({
+
+			url:"workbench/clue/getClueList.do",
+			data :{
+				//传参--做分页的相关参数
+				"pageNo":pageNo,
+				"pageSize":pageSize,
+				//传参--线索列表
+				"fullname":$.trim($("#fullname").val()),
+				"company":$.trim($("#company").val()),
+				"phone":$.trim($("#phone").val()),
+				"source":$.trim($("#source").val()),
+				"owner":$.trim($("#owner").val()),
+				"mphone":$.trim($("#mphone").val()),
+				"clueState":$.trim($("#clueState").val()),
+			},
+			type:"post",
+			dataType : "json",
+			success :function (data){
+
+				/**
+				 * 前端需要的参数：市场活动信息列表
+				 * {{市场活动1}，{2}，{3}}
+				 * 一会分页插件需要的，查询出来的总记录数
+				 * {“total”：100}
+				 * {“total：100，“datalist”：[{市场活动1}，{2}，{3}]}
+				 */
+
+				var html ="";
+
+				$.each(data.list,function (i,n){
+				html +='<tr>';
+				html +='<td><input type="checkbox" /></td>';
+				html +='<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/clue/detail.do?id='+n.id+'\';">'+n.fullname+'</a></td>';
+				html +='<td>'+n.company+'</td>';
+				html +='<td>'+n.phone+'</td>';
+				html +='<td>'+n.mphone+'</td>';
+				html +='<td>'+n.source+'</td>';
+				html +='<td>'+n.owner+'</td>';
+				html +='<td>'+n.state+'</td>';
+				html +='</tr>';
+				})
+
+				$("#tbodyContext").html(html);
+
+				//计算总页数
+				var totalPages = data.total%pageSize ==0?data.total/pageSize:data.total/pageSize+1;
+
+				//分页组件
+				$("#activityPage").bs_pagination({
+					currentPage: pageNo, // 页码
+					rowsPerPage: pageSize, // 每页显示的记录条数
+					maxRowsPerPage: 20, // 每页最多显示的记录条数
+					totalPages: totalPages, // 总页数》需要计算
+					totalRows: data.total, // 总记录条数
+
+					visiblePageLinks: 3, // 显示几个卡片
+
+					showGoToPage: true,
+					showRowsPerPage: true,
+					showRowsInfo: true,
+					showRowsDefaultInfo: true,
+
+					//回调函数在点击分页组件的时候触发
+					onChangePage : function(event, data){
+						updatepageList(data.currentPage , data.rowsPerPage);
+					}
+				});
+			}
+		})
+	}
+
+
 </script>
 </head>
 <body>
@@ -87,11 +205,9 @@ request.getServerPort() + request.getContextPath() + "/";
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="create-call">
 								  <option></option>
-								  <option>先生</option>
-								  <option>夫人</option>
-								  <option>女士</option>
-								  <option>博士</option>
-								  <option>教授</option>
+									<c:forEach items="${appellation}" var="a">
+										<option value="${a.value}">${a.text}</option>
+									</c:forEach>
 								</select>
 							</div>
 							<label for="create-surname" class="col-sm-2 control-label">姓名<span style="font-size: 15px; color: red;">*</span></label>
@@ -131,13 +247,9 @@ request.getServerPort() + request.getContextPath() + "/";
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="create-status">
 								  <option></option>
-								  <option>试图联系</option>
-								  <option>将来联系</option>
-								  <option>已联系</option>
-								  <option>虚假线索</option>
-								  <option>丢失线索</option>
-								  <option>未联系</option>
-								  <option>需要条件</option>
+									<c:forEach items="${clueState}" var="c">
+										<option value="${c.value}">${c.text}</option>
+									</c:forEach>
 								</select>
 							</div>
 						</div>
@@ -147,20 +259,9 @@ request.getServerPort() + request.getContextPath() + "/";
 							<div class="col-sm-10" style="width: 300px;">
 								<select class="form-control" id="create-source">
 								  <option></option>
-								  <option>广告</option>
-								  <option>推销电话</option>
-								  <option>员工介绍</option>
-								  <option>外部介绍</option>
-								  <option>在线商场</option>
-								  <option>合作伙伴</option>
-								  <option>公开媒介</option>
-								  <option>销售邮件</option>
-								  <option>合作伙伴研讨会</option>
-								  <option>内部研讨会</option>
-								  <option>交易会</option>
-								  <option>web下载</option>
-								  <option>web调研</option>
-								  <option>聊天</option>
+									<c:forEach items="${source}" var="s">
+										<option value="${s.value}">${s.text}</option>
+									</c:forEach>
 								</select>
 							</div>
 						</div>
@@ -205,7 +306,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+					<button type="button" class="btn btn-primary" id="saveBtn">保存</button>
 				</div>
 			</div>
 		</div>
@@ -388,43 +489,32 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="fullname">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">公司</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="company">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">公司座机</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="phone">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">线索来源</div>
-					  <select class="form-control">
-					  	  <option></option>
-					  	  <option>广告</option>
-						  <option>推销电话</option>
-						  <option>员工介绍</option>
-						  <option>外部介绍</option>
-						  <option>在线商场</option>
-						  <option>合作伙伴</option>
-						  <option>公开媒介</option>
-						  <option>销售邮件</option>
-						  <option>合作伙伴研讨会</option>
-						  <option>内部研讨会</option>
-						  <option>交易会</option>
-						  <option>web下载</option>
-						  <option>web调研</option>
-						  <option>聊天</option>
+					  <select class="form-control" id="source">
+						  <option></option>
+						  <c:forEach items="${source}" var="s">
+							  <option value="${s.value}">${s.text}</option>
+						  </c:forEach>
 					  </select>
 				    </div>
 				  </div>
@@ -434,7 +524,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="owner">
 				    </div>
 				  </div>
 				  
@@ -443,22 +533,18 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">手机</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="mphone">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">线索状态</div>
-					  <select class="form-control">
-					  	<option></option>
-					  	<option>试图联系</option>
-					  	<option>将来联系</option>
-					  	<option>已联系</option>
-					  	<option>虚假线索</option>
-					  	<option>丢失线索</option>
-					  	<option>未联系</option>
-					  	<option>需要条件</option>
+					  <select class="form-control" id="clueState">
+						  <option></option>
+						  <c:forEach items="${clueState}" var="c">
+							  <option value="${c.value}">${c.text}</option>
+						  </c:forEach>
 					  </select>
 				    </div>
 				  </div>
@@ -490,8 +576,8 @@ request.getServerPort() + request.getContextPath() + "/";
 							<td>线索状态</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr>
+					<tbody id="tbodyContext">
+<%--						<tr>
 							<td><input type="checkbox" /></td>
 							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.jsp';">李四先生</a></td>
 							<td>动力节点</td>
@@ -510,45 +596,14 @@ request.getServerPort() + request.getContextPath() + "/";
                             <td>广告</td>
                             <td>zhangsan</td>
                             <td>已联系</td>
-                        </tr>
+                        </tr>--%>
 					</tbody>
 				</table>
 			</div>
-			
-			<div style="height: 50px; position: relative;top: 60px;">
-				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
+				<!--分页查询的表单-->
+				<div style="height: 50px; position: relative;top: 30px;">
+					<div id="activityPage"></div>
 				</div>
-				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
-					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
-					<div class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							10
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">20</a></li>
-							<li><a href="#">30</a></li>
-						</ul>
-					</div>
-					<button type="button" class="btn btn-default" style="cursor: default;">条/页</button>
-				</div>
-				<div style="position: relative;top: -88px; left: 285px;">
-					<nav>
-						<ul class="pagination">
-							<li class="disabled"><a href="#">首页</a></li>
-							<li class="disabled"><a href="#">上一页</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">下一页</a></li>
-							<li class="disabled"><a href="#">末页</a></li>
-						</ul>
-					</nav>
-				</div>
-			</div>
 			
 		</div>
 		

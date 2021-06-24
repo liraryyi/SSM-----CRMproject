@@ -20,4 +20,6 @@ public interface ActivityService {
     boolean updateActivity(Map<String,String> map);
 
     Activity selectDetailActivityById(String id);
+
+    List<Activity> getActivityListByClueId(String id);
 }

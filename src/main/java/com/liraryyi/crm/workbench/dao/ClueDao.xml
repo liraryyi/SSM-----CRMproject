@@ -5,8 +5,107 @@
 
 <mapper namespace="com.liraryyi.crm.workbench.dao.ClueDao">
 	
-	
-  	
+	<insert id="insertClue">
+        insert into tbl_clue
+        (id,fullname,appellation,owner,company,job,email,phone,website,mphone,state,source,createBy,createTime,description,contactSummary,nextContactTime,address)
+        values (#{id},#{fullname},#{appellation},#{owner},#{company},#{job},#{email},#{phone},#{website},#{mphone},#{state},#{source},#{createBy},#{createTime},#{description},#{contactSummary},#{nextContactTime},#{address})
+    </insert>
+
+    <select id="selectClueCount" resultType="int">
+        select count(*)
+        from tbl_clue a
+        join tbluser u
+        on a.owner = u.id
+        <where>
+            <if test="fullname!=null and fullname !=''">
+                a.fullname like '%' #{fullname} '%'
+            </if>
+            <if test="company!=null and company !=''">
+                a.company like '%' #{company} '%'
+            </if>
+            <if test="phone!=null and phone !=''">
+                a.phone like '%' #{phone} '%'
+            </if>
+            <if test="source!=null and source !=''">
+                a.source like '%' #{source} '%'
+            </if>
+            <if test="owner!=null and owner !=''">
+                u.name like '%' #{owner} '%'
+            </if>
+            <if test="mphone!=null and mphone !=''">
+                a.mphone like '%' #{mphone} '%'
+            </if>
+            <if test="state!=null and state !=''">
+                a.state like '%' #{clueState} '%'
+            </if>
+        </where>
+    </select>
+
+    <select id="selectClueList" resultType="Clue">
+        select
+        a.id,
+        a.fullname,
+        a.company,
+        a.phone,
+        a.mphone,
+        a.source,
+        u.name as owner,
+        a.state
+        from tbl_clue a
+        join tbluser u
+        on a.owner = u.id
+        <where>
+            <if test="fullname!=null and fullname !=''">
+                a.fullname like '%' #{fullname} '%'
+            </if>
+            <if test="company!=null and company !=''">
+                a.company like '%' #{company} '%'
+            </if>
+            <if test="phone!=null and phone !=''">
+                a.phone like '%' #{phone} '%'
+            </if>
+            <if test="source!=null and source !=''">
+                a.source like '%' #{source} '%'
+            </if>
+            <if test="owner!=null and owner !=''">
+                u.name like '%' #{owner} '%'
+            </if>
+            <if test="mphone!=null and mphone !=''">
+                a.mphone like '%' #{mphone} '%'
+            </if>
+            <if test="state!=null and state !=''">
+                a.state like '%' #{clueState} '%'
+            </if>
+        </where>
+    </select>
+
+    <select id="getClueById" resultType="Clue">
+        select
+            a.id,
+            a.fullname,
+            a.appellation,
+            u.name as owner,
+            a.company,
+            a.job,
+            a.email,
+            a.phone,
+            a.website,
+            a.mphone,
+            a.state,
+            a.source,
+            a.createBy,
+            a.createTime,
+               a.editBy,
+               a.editTime,
+               a.description,
+               a.contactSummary,
+               a.nextContactTime,
+               a.address
+        from tbl_clue a
+        join tbluser u
+        on a.owner = u.id
+        where a.id = #{id}
+    </select>
 </mapper>
 
 

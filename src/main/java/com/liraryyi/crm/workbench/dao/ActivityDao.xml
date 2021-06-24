@@ -116,4 +116,20 @@
         where a.id = #{id}
 
     </select>
+
+    <select id="selectActivityById" resultType="Activity">
+        select
+        car.id as id,
+        a.name,
+        a.startDate,
+        a.endDate,
+        u.name as owner
+
+        from tbl_activity a
+        join tbluser u
+        on a.owner = u.id
+        join tbl_clue_activity_relation car
+        on a.id = car.activityId
+        where car.clueId = #{id}
+    </select>
 </mapper>

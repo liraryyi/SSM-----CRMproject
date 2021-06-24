@@ -121,7 +121,6 @@ public class ActivityController {
     @RequestMapping(value = "/activity/delete.do")
     public void deleteActivity(HttpServletRequest request,HttpServletResponse response){
 
-        System.out.println("controller start");
         //传过来的数据为id=xxx&id=xxx，可以采用数组统一接收getParameterValues
         String[] ids = request.getParameterValues("id");
 
@@ -132,7 +131,6 @@ public class ActivityController {
 
         boolean flag = activityService.deleteActivityList(ids);
 
-        System.out.println("controller end");
         PrintJson.printJsonFlag(response,flag);
     }
 

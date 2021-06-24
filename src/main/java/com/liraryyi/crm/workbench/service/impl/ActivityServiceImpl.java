@@ -3,6 +3,7 @@ package com.liraryyi.crm.workbench.service.impl;
 import com.liraryyi.crm.vo.PageListVo;
 import com.liraryyi.crm.workbench.dao.ActivityDao;
 import com.liraryyi.crm.workbench.dao.Activity_remarkDao;
+import com.liraryyi.crm.workbench.dao.ClueActivityRelationDao;
 import com.liraryyi.crm.workbench.domain.Activity;
 import com.liraryyi.crm.workbench.service.ActivityService;
 import lombok.Getter;
@@ -19,6 +20,9 @@ public class ActivityServiceImpl implements ActivityService {
     @Resource
     @Setter @Getter
     private ActivityDao activityDao;
+
+    @Resource @Setter @Getter
+    private ClueActivityRelationDao clueActivityRelationDao;
 
     @Resource
     @Setter @Getter
@@ -105,5 +109,15 @@ public class ActivityServiceImpl implements ActivityService {
         Activity activity = activityDao.selectDetailActivityById(id);
 
         return activity;
+    }
+
+    @Override
+    public List<Activity> getActivityListByClueId(String id) {
+
+
+        //根据含有市场活动id的数组ids，找到到相应的市场活动信息并保存到list中
+        List<Activity> list = activityDao.selectActivityById(id);
+
+        return list;
     }
 }
