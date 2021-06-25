@@ -159,4 +159,34 @@ public class ClueController {
 
         PrintJson.printJsonFlag(response,success);
     }
+
+    @RequestMapping(value = "/clue/bind.do")
+    public void bindRelation(HttpServletRequest request,HttpServletResponse response){
+
+        String cid = request.getParameter("cid");
+
+        String[] aid = request.getParameterValues("aid");
+
+        boolean success = clueService.bindActivity(cid, aid);
+
+        PrintJson.printJsonFlag(response,success);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/clue/getAllActivityListByClueId.do")
+    public List<Activity> getAllActivityListByClueId(HttpServletRequest request){
+
+        System.out.println("controller start");
+        String name = request.getParameter("name");
+
+        System.out.println(name);
+        List<Activity> list =  activityService.getAllActivityListByName(name);
+
+        for (Activity activity:list){
+            System.out.println(activity);
+        }
+        System.out.println("controller end");
+        return list;
+
+    }
 }

@@ -53,7 +53,62 @@ request.getServerPort() + request.getContextPath() + "/";
 			$(this).children("span").css("color","#E6E6E6");
 		});
 
+		//刷新页面的同时刷新关联市场活动列表
 		updateRelation();
+
+		//点击关联市场活动，展现关联市场活动列表
+		$("#activityName").keydown(function (event){
+			if (event.keyCode == 13){
+				updateModalRelation();
+
+				//展现完列表后，记得将模态窗口默认的回车行为禁用掉
+				return false;
+			}
+		})
+
+		//为关联按钮绑定事件，点击关联
+		$("#bindBtn").click(function (){
+			//这里关联的意思是将线索Id和市场活动id加入到表tbl_clue_activity_relation
+
+			//找到复选框中所有checked的jquery对象
+			var $xz = $("input[name = xz]:checked");
+
+			if ($xz.length == 0){
+				alert("请选择需要关联的市场活动")
+			}else{
+
+				//需要传递的数据的形式是
+				//workbench/clue/bind.do?cid=xxx&aid=xxx&aid=xxx...
+				var param ="cid=${clue.id}&";
+
+				for (var i =0;i<$xz.length;i++){
+
+					//$()将DOM对象转换为jQuery对象
+					param +="aid="+$($xz[i]).val();
+
+					if (i<$xz.length-1){
+						param +="&";
+					}
+				}
+			}
+
+			$.ajax({
+
+				url:"workbench/clue/bind.do",
+				data :param,
+				type:"get",
+				dataType : "json",
+				success :function (data){
+					if (data.success){
+						updateRelation();
+						updateModalRelation();
+					}else {
+						alert("关联失败");
+					}
+				}
+			})
+
+		})
 	});
 
 	//刷新关联市场活动
@@ -80,7 +135,7 @@ request.getServerPort() + request.getContextPath() + "/";
 					html +='<td>'+n.startDate+'</td>';
 					html +='<td>'+n.endDate+'</td>';
 					html +='<td>'+n.owner+'</td>';
-					html +='<td><a href="javascript:void(0);" onclick="unbund(\''+n.id+'\')" style="text-decoration: none;"><span class="glyphicon glyphicon-remove"></span>解除关联</a></td>';
+					html +='<td><a href="javascript:void(0);" onclick="unbind(\''+n.id+'\')" style="text-decoration: none;"><span class="glyphicon glyphicon-remove"></span>解除关联</a></td>';
 					html +='</tr>';
 				})
 
@@ -91,7 +146,7 @@ request.getServerPort() + request.getContextPath() + "/";
 	}
 
 	//解除关联
-	function unbund(id){
+	function unbind(id){
 		$.ajax({
 
 			url:"workbench/clue/unbund.do",
@@ -106,6 +161,40 @@ request.getServerPort() + request.getContextPath() + "/";
 				}else {
 					alert("解除关联失败")
 				}
+			}
+		})
+	}
+
+	//刷新关联市场活动列表
+	//这里刷新的时候，我们希望1.正常的连表查询; 2.不显示已经关联好的活动
+	function updateModalRelation(){
+
+		$.ajax({
+
+			url:"workbench/clue/getActivityListByClueId.do",
+			data :{
+				"clueId":"${clue.id}",
+				"name":$.trim($("#activityName").val())
+			},
+			type:"get",
+			dataType : "json",
+			success :function (data){
+
+				var html = "";
+
+				//这里每一个n就是遍历出来的一个activity对象
+				$.each(data,function (i,n){
+				html +='<tr>';
+				html +='<td><input type="checkbox" name="xz" value="'+n.id+'"/></td>';
+				html +='<td>'+n.name+'</td>';
+				html +='<td>'+n.startDate+'</td>';
+				html +='<td>'+n.endDate+'</td>';
+				html +='<td>'+n.owner+'</td>';
+				html +='</tr>';
+				})
+
+				$("#activityTbody").html(html);
+
 			}
 		})
 	}
@@ -129,7 +218,7 @@ request.getServerPort() + request.getContextPath() + "/";
 					<div class="btn-group" style="position: relative; top: 18%; left: 8px;">
 						<form class="form-inline" role="form">
 						  <div class="form-group has-feedback">
-						    <input type="text" class="form-control" style="width: 300px;" placeholder="请输入市场活动名称，支持模糊查询">
+						    <input type="text" class="form-control" style="width: 300px;" placeholder="请输入市场活动名称，支持模糊查询" id="activityName">
 						    <span class="glyphicon glyphicon-search form-control-feedback"></span>
 						  </div>
 						</form>
@@ -145,8 +234,8 @@ request.getServerPort() + request.getContextPath() + "/";
 								<td></td>
 							</tr>
 						</thead>
-						<tbody>
-							<tr>
+						<tbody id="activityTbody">
+<%--							<tr>
 								<td><input type="checkbox"/></td>
 								<td>发传单</td>
 								<td>2020-10-10</td>
@@ -159,13 +248,13 @@ request.getServerPort() + request.getContextPath() + "/";
 								<td>2020-10-10</td>
 								<td>2020-10-20</td>
 								<td>zhangsan</td>
-							</tr>
+							</tr>--%>
 						</tbody>
 					</table>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">关联</button>
+					<button type="button" class="btn btn-primary" id="bindBtn">关联</button>
 				</div>
 			</div>
 		</div>
@@ -335,10 +424,10 @@ request.getServerPort() + request.getContextPath() + "/";
 	<!-- 大标题 -->
 	<div style="position: relative; left: 40px; top: -30px;">
 		<div class="page-header">
-			<h3>${clue.fullname} <small>${clue.company}</small></h3>
+			<h3>${clue.fullname}&nbsp;<small>${clue.company}&nbsp;</small></h3>
 		</div>
 		<div style="position: relative; height: 50px; width: 500px;  top: -72px; left: 700px;">
-			<button type="button" class="btn btn-default" onclick="window.location.href='convert.html';"><span class="glyphicon glyphicon-retweet"></span> 转换</button>
+			<button type="button" class="btn btn-default" onclick="window.location.href='workbench/clue/convert.jsp?id=${clue.id}&fullname=${clue.fullname}&appellation=${clue.appellation}&owner=${clue.owner}';"><span class="glyphicon glyphicon-retweet"></span> 转换</button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editClueModal"><span class="glyphicon glyphicon-edit"></span> 编辑</button>
 			<button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 		</div>
@@ -348,59 +437,59 @@ request.getServerPort() + request.getContextPath() + "/";
 	<div style="position: relative; top: -70px;">
 		<div style="position: relative; left: 40px; height: 30px;">
 			<div style="width: 300px; color: gray;">名称</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.fullname}</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.fullname}&nbsp;</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">所有者</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.owner}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.owner}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 10px;">
 			<div style="width: 300px; color: gray;">公司</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.company}</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.company}&nbsp;</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">职位</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.job}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.job}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 20px;">
 			<div style="width: 300px; color: gray;">邮箱</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.email}</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.email}&nbsp;</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">公司座机</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.phone}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.phone}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 30px;">
 			<div style="width: 300px; color: gray;">公司网站</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.website}</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.website}&nbsp;</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">手机</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.mphone}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.mphone}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 40px;">
 			<div style="width: 300px; color: gray;">线索状态</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.state}</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.state}&nbsp;</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">线索来源</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.source}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${clue.source}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 50px;">
 			<div style="width: 300px; color: gray;">创建者</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${clue.createBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${clue.createTime}</small></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${clue.createBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${clue.createTime}&nbsp;</small></div>
 			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 60px;">
 			<div style="width: 300px; color: gray;">修改者</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${clue.editBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${clue.editTime}</small></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${clue.editBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${clue.editTime}&nbsp;</small></div>
 			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 70px;">
 			<div style="width: 300px; color: gray;">描述</div>
 			<div style="width: 630px;position: relative; left: 200px; top: -20px;">
 				<b>
-					${clue.description}
+					${clue.description}&nbsp;
 				</b>
 			</div>
 			<div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>
@@ -409,21 +498,21 @@ request.getServerPort() + request.getContextPath() + "/";
 			<div style="width: 300px; color: gray;">联系纪要</div>
 			<div style="width: 630px;position: relative; left: 200px; top: -20px;">
 				<b>
-					${clue.contactSummary}
+					${clue.contactSummary}&nbsp;
 				</b>
 			</div>
 			<div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 90px;">
 			<div style="width: 300px; color: gray;">下次联系时间</div>
-			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.nextContactTime}</b></div>
+			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${clue.nextContactTime}&nbsp;</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -20px; "></div>
 		</div>
         <div style="position: relative; left: 40px; height: 30px; top: 100px;">
             <div style="width: 300px; color: gray;">详细地址</div>
             <div style="width: 630px;position: relative; left: 200px; top: -20px;">
                 <b>
-                    ${clue.address}
+                    ${clue.address}&nbsp;
                 </b>
             </div>
             <div style="height: 1px; width: 850px; background: #D5D5D5; position: relative; top: -20px;"></div>

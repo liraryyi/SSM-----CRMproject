@@ -12,6 +12,10 @@
     <delete id="deleteById">
         delete from tbl_clue_activity_relation where id = #{id}
     </delete>
+
+    <insert id="insertActivity">
+        insert into tbl_clue_activity_relation(id, clueId, activityId) values (#{id},#{cid},#{aid})
+    </insert>
 </mapper>
 
 

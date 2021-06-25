@@ -267,4 +267,19 @@ public class ActivityController {
         System.out.println("updateRemark controller end");
         PrintJson.printJsonFlag(response,success);
     }
+
+    //根据线索Id查询活动信息列表
+    @ResponseBody
+    @RequestMapping(value = "/clue/getActivityListByClueId.do")
+    public List<Activity> getActivityListByName(HttpServletRequest request){
+
+        //查询到的市场活动消息不应该是已经关联了的
+        String clueId = request.getParameter("clueId");
+        String name = request.getParameter("name");
+
+
+        List<Activity> list = activityService.getActivityListByName(clueId,name);
+
+        return list;
+    }
 }

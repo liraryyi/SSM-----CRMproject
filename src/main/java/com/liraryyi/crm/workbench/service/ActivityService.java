@@ -22,4 +22,8 @@ public interface ActivityService {
     Activity selectDetailActivityById(String id);
 
     List<Activity> getActivityListByClueId(String id);
+
+    List<Activity> getActivityListByName(String clueId,String name);
+
+    List<Activity> getAllActivityListByName(String name);
 }

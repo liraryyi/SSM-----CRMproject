@@ -115,9 +115,24 @@ public class ActivityServiceImpl implements ActivityService {
     public List<Activity> getActivityListByClueId(String id) {
 
 
-        //根据含有市场活动id的数组ids，找到到相应的市场活动信息并保存到list中
         List<Activity> list = activityDao.selectActivityById(id);
 
         return list;
+    }
+
+    public List<Activity> getActivityListByName(String clueId,String name){
+
+        List<Activity> list = activityDao.getActivityListByName(clueId,name);
+
+        return list;
+    }
+
+    @Override
+    public List<Activity> getAllActivityListByName(String name) {
+
+        List<Activity> list = activityDao.selectActivityListByName(name);
+
+        return list;
+
     }
 }
