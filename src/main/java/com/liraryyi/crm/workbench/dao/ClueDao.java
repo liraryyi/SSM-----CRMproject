@@ -14,4 +14,6 @@ public interface ClueDao {
     List<Clue> selectClueList(Map<String,Object> map);
 
     Clue  getClueById(String id);
+
+    int deleteById(String clueId);
 }

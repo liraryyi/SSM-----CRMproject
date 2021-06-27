@@ -1,5 +1,7 @@
 package com.liraryyi.crm.workbench.dao;
 
-public interface ContactsRemarkDao {
+import com.liraryyi.crm.workbench.domain.ContactsRemark;
 
+public interface ContactsRemarkDao {
+    int saveContactsRemark(ContactsRemark contactsRemark);
 }

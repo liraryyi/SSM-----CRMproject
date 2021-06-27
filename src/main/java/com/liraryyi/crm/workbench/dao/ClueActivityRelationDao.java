@@ -11,4 +11,6 @@ public interface ClueActivityRelationDao {
     int deleteById(String id);
 
     int insertActivity(Map<String,String> map);
+
+    int deleteByClueId(String id);
 }

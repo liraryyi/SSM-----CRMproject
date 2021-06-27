@@ -1,5 +1,7 @@
 package com.liraryyi.crm.workbench.dao;
 
-public interface TranHistoryDao {
+import com.liraryyi.crm.workbench.domain.TranHistory;
 
+public interface TranHistoryDao {
+    int saveTranHistory(TranHistory tranHistory);
 }

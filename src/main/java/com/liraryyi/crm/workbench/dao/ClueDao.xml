@@ -106,6 +106,10 @@
         on a.owner = u.id
         where a.id = #{id}
     </select>
+
+    <delete id="deleteById">
+        delete from tbl_clue where id = #{clueId}
+    </delete>
 </mapper>
 
 

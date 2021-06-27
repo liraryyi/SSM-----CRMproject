@@ -5,7 +5,42 @@
 
 <mapper namespace="com.liraryyi.crm.workbench.dao.CustomerDao">
 	
-  	
+  	<select id="getCustomerByName" resultType="Customer">
+        select * from tbl_customer where name = #{name }
+    </select>
+    
+    <insert id="saveCustomer">
+        insert into tbl_customer
+        (
+        id,
+        owner,
+	    name,
+	    website,
+	    phone,
+	    createBy,
+	    createTime,
+	    editBy,
+	    editTime,
+	    contactSummary,
+	    nextContactTime,
+	    description,
+	    address
+        ) values (
+        #{id},
+        #{owner},
+        #{name},
+        #{website},
+        #{phone},
+        #{createBy},
+        #{createTime},
+        #{editBy},
+        #{editTime},
+        #{contactSummary},
+        #{nextContactTime},
+        #{description},
+        #{address}
+        )
+    </insert>
 </mapper>
 
 

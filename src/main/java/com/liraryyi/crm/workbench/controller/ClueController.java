@@ -7,6 +7,7 @@ import com.liraryyi.crm.utils.PrintJson;
 import com.liraryyi.crm.utils.UUIDUtil;
 import com.liraryyi.crm.workbench.domain.Activity;
 import com.liraryyi.crm.workbench.domain.Clue;
+import com.liraryyi.crm.workbench.domain.Tran;
 import com.liraryyi.crm.workbench.service.ActivityService;
 import com.liraryyi.crm.workbench.service.ClueService;
 import com.liraryyi.crm.vo.PageListVo;
@@ -176,17 +177,50 @@ public class ClueController {
     @RequestMapping(value = "/clue/getAllActivityListByClueId.do")
     public List<Activity> getAllActivityListByClueId(HttpServletRequest request){
 
-        System.out.println("controller start");
         String name = request.getParameter("name");
 
-        System.out.println(name);
         List<Activity> list =  activityService.getAllActivityListByName(name);
 
-        for (Activity activity:list){
-            System.out.println(activity);
-        }
-        System.out.println("controller end");
         return list;
 
+    }
+
+    @RequestMapping(value = "/clue/convert.do")
+    public ModelAndView clueConvert(HttpServletRequest request, HttpServletResponse response){
+        ModelAndView mv = new ModelAndView();
+
+        String clueId = request.getParameter("clueId");
+        String flag = request.getParameter("flag");
+        String createBy = ((User)request.getSession().getAttribute("user")).getName();
+
+        Tran tran = null;
+        //如果“a”.equals(flag)为true,说明数据是由表单提交而来，需要再创建一笔交易
+        if ("a".equals(flag)){
+
+            //相关的交易参数
+            /**
+             * money,
+             * name,
+             * date,
+             * stage,
+             * activityId,
+             */
+            tran = new Tran();
+            tran.setId(UUIDUtil.getUUID());
+            //从全局作用域中取得用户名
+            tran.setCreateBy(createBy);
+            tran.setCreateTime(DateTimeUtil.getSysTime());
+            tran.setMoney(request.getParameter("money"));
+            tran.setName(request.getParameter("name"));
+            tran.setExpectedDate(request.getParameter("date"));
+            tran.setStage(request.getParameter("stage"));
+            tran.setActivityId(request.getParameter("activityId"));
+
+            //考虑应该传递什么参数  clueId ，tran，
+            boolean success = clueService.convertClue(clueId,tran,createBy);
+
+        }
+        mv.setViewName("index.jsp");
+        return mv;
     }
 }
