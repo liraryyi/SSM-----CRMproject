@@ -186,7 +186,7 @@ public class ClueController {
     }
 
     @RequestMapping(value = "/clue/convert.do")
-    public ModelAndView clueConvert(HttpServletRequest request, HttpServletResponse response){
+    public ModelAndView clueConvert(HttpServletRequest request){
         ModelAndView mv = new ModelAndView();
 
         String clueId = request.getParameter("clueId");

@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 String basePath = request.getScheme() + "://" + request.getServerName() + ":" +
 request.getServerPort() + request.getContextPath() + "/";
@@ -20,11 +21,118 @@ request.getServerPort() + request.getContextPath() + "/";
 <script type="text/javascript">
 
 	$(function(){
-		
-		
-		
+
+		//点击查询按钮，实现分页查询
+		$("#searchBtn").click(function (){
+
+			//点击查询的同时将搜索栏中的值保存到隐藏域中
+			$("#hidden-owner").val($("#owner").val());
+			$("#hidden-name").val($("#name").val());
+			$("#hidden-customerName").val($("#customerName").val());
+			$("#hidden-stage").val($("#stage").val());
+			$("#hidden-type").val($("#type").val());
+			$("#hidden-source").val($("#source").val());
+			$("#hidden-contactsName").val($("#contactsName").val());
+
+			updatePage(1,3);
+		})
+
+		updatePage(1,3);
 	});
-	
+
+	//分页查询页面
+	function updatePage(pageNo, pageSize){
+
+		<!--查询之前将隐藏域中的信息赋给搜索框-->
+		$("#owner").val($("#hidden-owner").val());
+		$("#name").val($("#hidden-name").val());
+		$("#customerName").val($("#hidden-customerName").val());
+		$("#stage").val($("#hidden-stage").val());
+		$("#type").val($("#hidden-type").val());
+		$("#source").val($("#hidden-source").val());
+		$("#contactsName").val($("#hidden-contactsName").val());
+
+		$.ajax({
+
+			url:"workbench/transaction/getTransactionList.do",
+			data :{
+
+				/**
+				 * 分析一下传入的值
+				 * pageNo:页码
+				 * pageSize:每页展现的记录数
+				 *
+				 * 查询框中的
+				 * 所有者：owner
+				 * 名称:name
+				 * 客户名称:?
+				 * 阶段:stage
+				 * 类型:type
+				 * 联系人名称:? 表中只有联系人的id，需要联表查询
+				 */
+
+				"pageNo":pageNo,
+				"pageSize":pageSize,
+				"owner":$.trim($("#owner").val()),
+				"name":$.trim($("#name").val()),
+				"customerName":$.trim($("#customerName").val()),
+				"stage":$.trim($("#stage").val()),
+				"type":$.trim($("#type").val()),
+				"source":$.trim($("#source").val()),
+				"contactsName":$.trim($("#contactsName").val())
+
+			},
+			type:"get",
+			dataType : "json",
+			success :function (data){
+
+				//传回来的参数，查找得到的transaction对象 data.list
+				//还有一个是分页插件所需要的total，即查询到的总记录数 data.total
+				var html = "";
+
+				//这里的每一个n就是一个transaction对象
+				$.each(data.list,function (i,n){
+				html +='<tr class="active">';
+				html +='	<td><input type="checkbox" '+n.id+'/></td>';
+				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/transaction/detail.jsp\';">'+n.name+'</a></td>';
+				html +='	<td>'+n.customerId+'</td>';
+				html +='	<td>'+n.stage+'</td>';
+				html +='	<td>'+n.type+'</td>';
+				html +='	<td>'+n.owner+'</td>';
+				html +='	<td>'+n.source+'</td>';
+				html +='	<td>'+n.contactsId+'</td>';
+				html +='</tr>';
+			    })
+
+				$("#transactionBody").html(html);
+
+				//计算总页数
+				var totalPages = data.total%pageSize ==0?data.total/pageSize:data.total/pageSize+1;
+
+				//分页组件  transactionPage:分页查询的表单
+				$("#transactionPage").bs_pagination({
+					currentPage: pageNo, // 页码
+					rowsPerPage: pageSize, // 每页显示的记录条数
+					maxRowsPerPage: 20, // 每页最多显示的记录条数
+					totalPages: totalPages, // 总页数》需要计算
+					totalRows: data.total, // 总记录条数
+
+					visiblePageLinks: 3, // 显示几个卡片
+
+					showGoToPage: true,
+					showRowsPerPage: true,
+					showRowsInfo: true,
+					showRowsDefaultInfo: true,
+
+					//回调函数在点击分页组件的时候触发
+					onChangePage : function(event, data){
+						updatePage(data.currentPage , data.rowsPerPage);
+					}
+				});
+			}
+		})
+	}
+
 </script>
 </head>
 <body>
@@ -38,7 +146,16 @@ request.getServerPort() + request.getContextPath() + "/";
 			</div>
 		</div>
 	</div>
-	
+
+	<!--用隐藏域储存搜索框中填写的信息-->
+	<input type="hidden" id="hidden-owner"/>
+	<input type="hidden" id="hidden-name"/>
+	<input type="hidden" id="hidden-customerName"/>
+	<input type="hidden" id="hidden-stage"/>
+	<input type="hidden" id="hidden-type"/>
+	<input type="hidden" id="hidden-source"/>
+	<input type="hidden" id="hidden-contactsName"/>
+
 	<div style="position: relative; top: -20px; left: 0px; width: 100%; height: 100%;">
 	
 		<div style="width: 100%; position: absolute;top: 5px; left: 10px;">
@@ -49,21 +166,21 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="owner">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="name">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">客户名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="customerName">
 				    </div>
 				  </div>
 				  
@@ -72,17 +189,11 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">阶段</div>
-					  <select class="form-control">
+					  <select class="form-control" id="stage">
 					  	<option></option>
-					  	<option>资质审查</option>
-					  	<option>需求分析</option>
-					  	<option>价值建议</option>
-					  	<option>确定决策者</option>
-					  	<option>提案/报价</option>
-					  	<option>谈判/复审</option>
-					  	<option>成交</option>
-					  	<option>丢失的线索</option>
-					  	<option>因竞争丢失关闭</option>
+						  <c:forEach items="${stage}" var="s">
+							  <option value="${s.value}">${s.text}</option>
+						  </c:forEach>
 					  </select>
 				    </div>
 				  </div>
@@ -90,10 +201,11 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">类型</div>
-					  <select class="form-control">
+					  <select class="form-control" id="type">
 					  	<option></option>
-					  	<option>已有业务</option>
-					  	<option>新业务</option>
+						  <c:forEach items="${transactionType}" var="t">
+							  <option value="${t.value}">${t.text}</option>
+						  </c:forEach>
 					  </select>
 				    </div>
 				  </div>
@@ -101,22 +213,11 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">来源</div>
-				      <select class="form-control" id="create-clueSource">
+				      <select class="form-control" id="source">
 						  <option></option>
-						  <option>广告</option>
-						  <option>推销电话</option>
-						  <option>员工介绍</option>
-						  <option>外部介绍</option>
-						  <option>在线商场</option>
-						  <option>合作伙伴</option>
-						  <option>公开媒介</option>
-						  <option>销售邮件</option>
-						  <option>合作伙伴研讨会</option>
-						  <option>内部研讨会</option>
-						  <option>交易会</option>
-						  <option>web下载</option>
-						  <option>web调研</option>
-						  <option>聊天</option>
+						  <c:forEach items="${source}" var="so">
+							  <option value="${so.value}">${so.text}</option>
+						  </c:forEach>
 						</select>
 				    </div>
 				  </div>
@@ -124,18 +225,18 @@ request.getServerPort() + request.getContextPath() + "/";
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">联系人名称</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" name="contactsName">
 				    </div>
 				  </div>
 				  
-				  <button type="submit" class="btn btn-default">查询</button>
+				  <button type="button" class="btn btn-default" id="searchBtn">查询</button>
 				  
 				</form>
 			</div>
 			<div class="btn-toolbar" role="toolbar" style="background-color: #F7F7F7; height: 50px; position: relative;top: 10px;">
 				<div class="btn-group" style="position: relative; top: 18%;">
-				  <button type="button" class="btn btn-primary" onclick="window.location.href='save.jsp';"><span class="glyphicon glyphicon-plus"></span> 创建</button>
-				  <button type="button" class="btn btn-default" onclick="window.location.href='edit.html';"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
+				  <button type="button" class="btn btn-primary" onclick="window.location.href='workbench/transaction/getUserList.do';"><span class="glyphicon glyphicon-plus"></span> 创建</button>
+				  <button type="button" class="btn btn-default" onclick="window.location.href='workbench/transaction/edit.jsp';"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
 				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				
@@ -155,8 +256,8 @@ request.getServerPort() + request.getContextPath() + "/";
 							<td>联系人名称</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr>
+					<tbody id="transactionBody">
+<%--						<tr>
 							<td><input type="checkbox" /></td>
 							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.jsp';">动力节点-交易01</a></td>
 							<td>动力节点</td>
@@ -175,44 +276,13 @@ request.getServerPort() + request.getContextPath() + "/";
                             <td>zhangsan</td>
                             <td>广告</td>
                             <td>李四</td>
-                        </tr>
+                        </tr>--%>
 					</tbody>
 				</table>
 			</div>
 			
 			<div style="height: 50px; position: relative;top: 20px;">
-				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
-				</div>
-				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
-					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
-					<div class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							10
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">20</a></li>
-							<li><a href="#">30</a></li>
-						</ul>
-					</div>
-					<button type="button" class="btn btn-default" style="cursor: default;">条/页</button>
-				</div>
-				<div style="position: relative;top: -88px; left: 285px;">
-					<nav>
-						<ul class="pagination">
-							<li class="disabled"><a href="#">首页</a></li>
-							<li class="disabled"><a href="#">上一页</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">下一页</a></li>
-							<li class="disabled"><a href="#">末页</a></li>
-						</ul>
-					</nav>
-				</div>
+				<div id="transactionPage"></div>
 			</div>
 			
 		</div>

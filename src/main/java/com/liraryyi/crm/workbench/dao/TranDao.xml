@@ -44,6 +44,79 @@
                 #{contactSummary},
                 #{nextContactTime})
     </insert>
+
+    <select id="selectListCount" resultType="int">
+        select count(*)
+        from tbl_tran t
+        join tbl_contacts con
+        on t.contactsId = con.id
+        join tbl_customer cus
+        on t.customerId = cus.id
+        <where>
+            <if test="owner!=null and owner !=''">
+                t.owner like '%' #{owner} '%'
+            </if>
+            <if test="name!= null and name !=''">
+                and t.name like '%' #{name} '%'
+            </if>
+            <if test="stage !=null and stage !=''">
+                and t.stage like '%' #{stage} '%'
+            </if>
+            <if test="type !=null and type !='' ">
+                and t.type like '%' #{type} '%'
+            </if>
+            <if test="source !=null and source !='' ">
+                and t.source like '%' #{source} '%'
+            </if>
+            <if test="customerId !=null and customerId !='' ">
+                and cus.name like '%' #{customerName} '%'
+            </if>
+            <if test="contactsId !=null and contactsId !='' ">
+                and con.owner like '%' #{contactsName} '%'
+            </if>
+        </where>
+        limit #{skipCount} , #{pageSize}
+    </select>
+    <select id="selectTranList" resultType="Tran">
+        select
+        t.id,
+        t.owner,
+        t.name,
+        t.type,
+        t.stage,
+        t.source,
+        cus.name as customerId,
+        con.owner as contactsId
+        from tbl_tran t
+        join tbl_contacts con
+        on t.contactsId = con.id
+        join tbl_customer cus
+        on t.customerId = cus.id
+        <where>
+            <if test="owner!=null and owner !=''">
+                t.owner like '%' #{owner} '%'
+            </if>
+            <if test="name!= null and name !=''">
+                and t.name like '%' #{name} '%'
+            </if>
+            <if test="stage !=null and stage !=''">
+                and t.stage like '%' #{stage} '%'
+            </if>
+            <if test="type !=null and type !='' ">
+                and t.type like '%' #{type} '%'
+            </if>
+            <if test="source !=null and source !='' ">
+                and t.source like '%' #{source} '%'
+            </if>
+            <if test="customerId !=null and customerId !='' ">
+                and cus.name like '%' #{customerName} '%'
+            </if>
+            <if test="contactsId !=null and contactsId !='' ">
+                and con.owner like '%' #{contactsName} '%'
+            </if>
+        </where>
+        limit #{skipCount} , #{pageSize}
+    </select>
 </mapper>
 
 

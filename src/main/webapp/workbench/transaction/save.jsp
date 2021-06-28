@@ -1,7 +1,13 @@
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.Set" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 String basePath = request.getScheme() + "://" + request.getServerName() + ":" +
 request.getServerPort() + request.getContextPath() + "/";
+
+	Map<String,String> map2 = (Map<String, String>) application.getAttribute("map2");
+	Set<String> set = map2.keySet();
 %>
 <!DOCTYPE html>
 <html>
@@ -16,7 +22,71 @@ request.getServerPort() + request.getContextPath() + "/";
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
+<script type="text/javascript">
 
+	$(function (){
+
+		var json = {
+
+			<%
+			    for (String key:set){
+			    	String value = map2.get(key);
+			%>
+			"<%=key%>":<%=value%>,
+			<%}%>
+		};
+
+		//这里应该给select赋值id,使得文本框中的值默认为当前登录的用户名
+		var id = "${user.id}";
+		$("#create-transactionOwner").val(id);
+
+
+		//模态窗口日历栏中加入日历插件
+		/**
+		 * 插件加入可能导致乱码问题
+		 * 注意：
+		 * 1.jsp文件头部：charset=UTF-8
+		 * 2.引入的js文件的编码格式为utf-8
+		 * 3.File》Settings》Editor》File Encodings  --utf-8
+		 * 4.Tomcat服务器设置中 ：VM option：-Dfile.encoding=UTF-8
+		 */
+		$(".time").datetimepicker({
+			minView: "month",
+			language:  'zh-CN',
+			format: 'yyyy-mm-dd',
+			autoclose: true,
+			todayBtn: true,
+			pickerPosition: "bottom-left"
+		});
+
+		/*
+		阶段和可能性：
+		  是一种11对应的关系
+		  可以想象成是一种键值对之间的对应关系
+
+		  stage          possibility
+		  key            value
+		  01资质审查       10
+		  02需求分析       25
+		  03价值建议       40
+		  ......
+
+		  以上的数据满足
+		  1.数据量不大
+		  2.是一种键值对的对应关系
+		  可以采用properties文件来存储，并且保存到全局作用域当中
+		 */
+		//阶段的下拉框，绑定事件，根据选中的阶段填写可能性
+		$("#create-transactionStage").change(function (){
+			var stage = $("#create-transactionStage").val();
+
+			var possibility = json[stage];
+
+			$("#create-possibility").val(possibility);
+		})
+	})
+
+</script>
 </head>
 <body>
 
@@ -132,10 +202,11 @@ request.getServerPort() + request.getContextPath() + "/";
 		<div class="form-group">
 			<label for="create-transactionOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-				<select class="form-control" id="create-transactionOwner">
-				  <option>zhangsan</option>
-				  <option>lisi</option>
-				  <option>wangwu</option>
+				<select class="form-control" id="create-transactionOwner" >
+				  <option></option>
+					<c:forEach items="${list}" var="l">
+						<option value="${l.id}">${l.name}</option>
+					</c:forEach>
 				</select>
 			</div>
 			<label for="create-amountOfMoney" class="col-sm-2 control-label">金额</label>
@@ -151,7 +222,7 @@ request.getServerPort() + request.getContextPath() + "/";
 			</div>
 			<label for="create-expectedClosingDate" class="col-sm-2 control-label">预计成交日期<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control" id="create-expectedClosingDate">
+				<input type="text" class="form-control time" id="create-expectedClosingDate">
 			</div>
 		</div>
 		
@@ -164,15 +235,9 @@ request.getServerPort() + request.getContextPath() + "/";
 			<div class="col-sm-10" style="width: 300px;">
 			  <select class="form-control" id="create-transactionStage">
 			  	<option></option>
-			  	<option>资质审查</option>
-			  	<option>需求分析</option>
-			  	<option>价值建议</option>
-			  	<option>确定决策者</option>
-			  	<option>提案/报价</option>
-			  	<option>谈判/复审</option>
-			  	<option>成交</option>
-			  	<option>丢失的线索</option>
-			  	<option>因竞争丢失关闭</option>
+				  <c:forEach items="${stage}" var="s">
+					  <option value="${s.value}">${s.text}</option>
+				  </c:forEach>
 			  </select>
 			</div>
 		</div>
@@ -182,8 +247,9 @@ request.getServerPort() + request.getContextPath() + "/";
 			<div class="col-sm-10" style="width: 300px;">
 				<select class="form-control" id="create-transactionType">
 				  <option></option>
-				  <option>已有业务</option>
-				  <option>新业务</option>
+					<c:forEach items="${transactionType}" var="t">
+						<option value="${t.value}">${t.text}</option>
+					</c:forEach>
 				</select>
 			</div>
 			<label for="create-possibility" class="col-sm-2 control-label">可能性</label>
@@ -197,20 +263,9 @@ request.getServerPort() + request.getContextPath() + "/";
 			<div class="col-sm-10" style="width: 300px;">
 				<select class="form-control" id="create-clueSource">
 				  <option></option>
-				  <option>广告</option>
-				  <option>推销电话</option>
-				  <option>员工介绍</option>
-				  <option>外部介绍</option>
-				  <option>在线商场</option>
-				  <option>合作伙伴</option>
-				  <option>公开媒介</option>
-				  <option>销售邮件</option>
-				  <option>合作伙伴研讨会</option>
-				  <option>内部研讨会</option>
-				  <option>交易会</option>
-				  <option>web下载</option>
-				  <option>web调研</option>
-				  <option>聊天</option>
+					<c:forEach items="${source}" var="sou">
+						<option value="${sou.value}">${sou.text}</option>
+					</c:forEach>
 				</select>
 			</div>
 			<label for="create-activitySrc" class="col-sm-2 control-label">市场活动源&nbsp;&nbsp;<a href="javascript:void(0);" data-toggle="modal" data-target="#findMarketActivity"><span class="glyphicon glyphicon-search"></span></a></label>
@@ -243,7 +298,7 @@ request.getServerPort() + request.getContextPath() + "/";
 		<div class="form-group">
 			<label for="create-nextContactTime" class="col-sm-2 control-label">下次联系时间</label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control" id="create-nextContactTime">
+				<input type="text" class="form-control time" id="create-nextContactTime">
 			</div>
 		</div>
 		

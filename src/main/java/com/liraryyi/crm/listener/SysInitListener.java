@@ -10,10 +10,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 监听器在web.xml中最先被执行，因此在监听器方法执行时，无法进行bean的自动注入；!!!!!!!!!!! 这真的是最坑的一点，因此跳过service层
@@ -70,5 +67,31 @@ public class SysInitListener implements ServletContextListener {
             application.setAttribute(key,map.get(key));
         }
 
+        //-----------------------------------------------------------------------
+        //数据字典处理完毕后，处理stage2possibility.properties文件
+        /*
+           处理步骤：
+           1.解析该文件，将属性文件中的键值对关系处理成为java中键值对的关系(map)
+           2.Map<String(阶段stage),String(可能性possibility)> map2
+             map2.put("资质审查", 10)
+         */
+        Map<String,String> map2 = new HashMap<>();
+
+        //解析properties文件
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("conf.Stage2Possibility");
+
+        Enumeration<String> e = resourceBundle.getKeys();
+
+        while (e.hasMoreElements()){
+            //阶段
+            String key = e.nextElement();
+
+            //可能性
+            String value = resourceBundle.getString(key);
+
+            map2.put(key,value);
+        }
+
+        application.setAttribute("map2",map2);
     }
 }
