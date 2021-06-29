@@ -125,7 +125,7 @@ public class ClueServiceImpl implements ClueService {
         boolean flag = true;
 
         //(1) 获取到线索id，通过线索id获取线索对象（线索对象当中封装了线索的信息）
-        Clue clue = clueDao.getClueById(clueId);
+        Clue clue = clueDao.getAllClueById(clueId);
 
         //(2) 通过线索对象提取客户信息，当该客户不存在的时候，新建客户（根据公司的名称精确匹配，判断该客户是否存在！）
         String name = clue.getCompany();
@@ -229,6 +229,7 @@ public class ClueServiceImpl implements ClueService {
             //将交易的信息进一步完善
             tran.setSource(clue.getSource());
             tran.setOwner(clue.getOwner());
+            System.out.println(clue.getOwner());
             tran.setNextContactTime(clue.getNextContactTime());
             tran.setDescription(clue.getDescription());
             tran.setCustomerId(customer.getId());

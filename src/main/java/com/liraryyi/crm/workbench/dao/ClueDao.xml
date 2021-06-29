@@ -45,12 +45,12 @@
         select
         a.id,
         a.fullname,
+        u.name as owner,
         a.company,
         a.phone,
         a.mphone,
-        a.source,
-        u.name as owner,
-        a.state
+        a.state,
+        a.source
         from tbl_clue a
         join tbluser u
         on a.owner = u.id
@@ -59,7 +59,7 @@
                 a.fullname like '%' #{fullname} '%'
             </if>
             <if test="company!=null and company !=''">
-                a.company like '%' #{company} '%'
+                 a.company like '%' #{company} '%'
             </if>
             <if test="phone!=null and phone !=''">
                 a.phone like '%' #{phone} '%'
@@ -68,15 +68,16 @@
                 a.source like '%' #{source} '%'
             </if>
             <if test="owner!=null and owner !=''">
-                u.name like '%' #{owner} '%'
+                 u.name like '%' #{owner} '%'
             </if>
             <if test="mphone!=null and mphone !=''">
                 a.mphone like '%' #{mphone} '%'
             </if>
             <if test="state!=null and state !=''">
-                a.state like '%' #{clueState} '%'
+                 a.state like '%' #{clueState} '%'
             </if>
         </where>
+        limit #{skipCount} , #{pageSize}
     </select>
 
     <select id="getClueById" resultType="Clue">
@@ -110,6 +111,10 @@
     <delete id="deleteById">
         delete from tbl_clue where id = #{clueId}
     </delete>
+
+    <select id="getAllClueById" resultType="Clue">
+        select * from tbl_clue where id = #{clueId}
+    </select>
 </mapper>
 
 

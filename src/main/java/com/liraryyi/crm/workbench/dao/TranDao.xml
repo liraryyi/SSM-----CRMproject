@@ -47,14 +47,18 @@
 
     <select id="selectListCount" resultType="int">
         select count(*)
+
         from tbl_tran t
         join tbl_contacts con
         on t.contactsId = con.id
         join tbl_customer cus
         on t.customerId = cus.id
+        join tbluser u
+        on t.owner = u.id
+
         <where>
             <if test="owner!=null and owner !=''">
-                t.owner like '%' #{owner} '%'
+                and u.name like '%' #{owner} '%'
             </if>
             <if test="name!= null and name !=''">
                 and t.name like '%' #{name} '%'
@@ -72,29 +76,33 @@
                 and cus.name like '%' #{customerName} '%'
             </if>
             <if test="contactsId !=null and contactsId !='' ">
-                and con.owner like '%' #{contactsName} '%'
+                and con.fullname like '%' #{contactsName} '%'
             </if>
         </where>
-        limit #{skipCount} , #{pageSize}
     </select>
+
     <select id="selectTranList" resultType="Tran">
         select
         t.id,
-        t.owner,
+        u.name as owner,
         t.name,
         t.type,
         t.stage,
         t.source,
         cus.name as customerId,
-        con.owner as contactsId
+        con.fullname as contactsId
+
         from tbl_tran t
         join tbl_contacts con
         on t.contactsId = con.id
         join tbl_customer cus
         on t.customerId = cus.id
+        join tbluser u
+        on t.owner = u.id
+
         <where>
             <if test="owner!=null and owner !=''">
-                t.owner like '%' #{owner} '%'
+                and u.name like '%' #{owner} '%'
             </if>
             <if test="name!= null and name !=''">
                 and t.name like '%' #{name} '%'
@@ -112,11 +120,47 @@
                 and cus.name like '%' #{customerName} '%'
             </if>
             <if test="contactsId !=null and contactsId !='' ">
-                and con.owner like '%' #{contactsName} '%'
+                and con.fullname like '%' #{contactsName} '%'
             </if>
         </where>
         limit #{skipCount} , #{pageSize}
     </select>
+
+    <select id="getTranById" resultType="Tran">
+        select
+        t.id,
+        u.name as owner,
+        t.money,
+        t.name,
+        t.expectedDate,
+        cus.name as customerId,
+        t.stage,
+        t.type,
+        t.source,
+        a.name as  activityId,
+        con.fullname as contactsId,
+        t.createBy,
+        t.createTime,
+        t.editBy,
+        t.editTime,
+        t.description,
+        t.contactSummary,
+        t.nextContactTime
+        from tbl_tran t
+        join tbl_contacts con
+        on t.contactsId = con.id
+        join tbl_customer cus
+        on t.customerId = cus.id
+        join tbluser u
+        on t.owner = u.id
+        join tbl_activity a
+        on t.activityId = a.id
+        where t.id = #{id}
+    </select>
+
+    <update id="updateStage">
+        update tbl_tran set stage = #{stage},editBy = #{editBy},editTime =#{editTime} where id = #{id}
+    </update>
 </mapper>
 
 

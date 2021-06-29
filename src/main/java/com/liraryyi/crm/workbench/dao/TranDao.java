@@ -12,4 +12,8 @@ public interface TranDao {
     int selectListCount(Map<String,Object> map);
 
     List<Tran> selectTranList(Map<String, Object> map);
+
+    Tran getTranById( String id);
+
+    int updateStage(Tran tran);
 }

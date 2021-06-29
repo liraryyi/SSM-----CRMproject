@@ -26,4 +26,29 @@ public class Tran {
 	private String contactSummary;	//联系纪要
 	private String nextContactTime;	//下次联系时间
 
+	//扩展可能性
+	private String possibility;
+	@Override
+	public String toString() {
+		return "Tran{" +
+				"id='" + id + '\'' +
+				", owner='" + owner + '\'' +
+				", money='" + money + '\'' +
+				", name='" + name + '\'' +
+				", expectedDate='" + expectedDate + '\'' +
+				", customerId='" + customerId + '\'' +
+				", stage='" + stage + '\'' +
+				", type='" + type + '\'' +
+				", source='" + source + '\'' +
+				", activityId='" + activityId + '\'' +
+				", contactsId='" + contactsId + '\'' +
+				", createBy='" + createBy + '\'' +
+				", createTime='" + createTime + '\'' +
+				", editBy='" + editBy + '\'' +
+				", editTime='" + editTime + '\'' +
+				", description='" + description + '\'' +
+				", contactSummary='" + contactSummary + '\'' +
+				", nextContactTime='" + nextContactTime + '\'' +
+				'}';
+	}
 }

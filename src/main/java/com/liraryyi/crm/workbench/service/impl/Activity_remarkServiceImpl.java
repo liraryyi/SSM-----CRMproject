@@ -52,14 +52,12 @@ public class Activity_remarkServiceImpl implements Activity_remarkService {
     @Override
     public boolean updateRemark(Map<String, String> map) {
 
-        System.out.println("updateRemark service end");
         boolean flag = true;
 
         int count = activity_remarkDao.updateRemarkById(map);
 
         if (count != 1){ flag=false; }
 
-        System.out.println("updateRemark service end");
         return flag;
     }
 }

@@ -15,5 +15,20 @@ public class TranHistory {
 	private String createBy;
 	private String tranId;
 
-	
+	//扩展可能性
+	private String possibility;
+
+	@Override
+	public String toString() {
+		return "TranHistory{" +
+				"id='" + id + '\'' +
+				", stage='" + stage + '\'' +
+				", money='" + money + '\'' +
+				", expectedDate='" + expectedDate + '\'' +
+				", createTime='" + createTime + '\'' +
+				", createBy='" + createBy + '\'' +
+				", tranId='" + tranId + '\'' +
+				", possibility='" + possibility + '\'' +
+				'}';
+	}
 }

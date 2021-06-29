@@ -195,7 +195,7 @@ public class ClueController {
 
         Tran tran = null;
         //如果“a”.equals(flag)为true,说明数据是由表单提交而来，需要再创建一笔交易
-        if ("a".equals(flag)){
+        if ("a".equals(flag)) {
 
             //相关的交易参数
             /**
@@ -215,11 +215,11 @@ public class ClueController {
             tran.setExpectedDate(request.getParameter("date"));
             tran.setStage(request.getParameter("stage"));
             tran.setActivityId(request.getParameter("activityId"));
-
+        }
             //考虑应该传递什么参数  clueId ，tran，
             boolean success = clueService.convertClue(clueId,tran,createBy);
 
-        }
+
         mv.setViewName("index.jsp");
         return mv;
     }

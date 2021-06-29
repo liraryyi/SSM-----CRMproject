@@ -17,7 +17,10 @@ request.getServerPort() + request.getContextPath() + "/";
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
-
+	<!--分页查询的插件-->
+	<link rel="stylesheet" type="text/css" href="jquery/bs_pagination/jquery.bs_pagination.min.css">
+	<script type="text/javascript" src="jquery/bs_pagination/jquery.bs_pagination.min.js"></script>
+	<script type="text/javascript" src="jquery/bs_pagination/en.js"></script>
 <script type="text/javascript">
 
 	$(function(){
@@ -44,13 +47,13 @@ request.getServerPort() + request.getContextPath() + "/";
 	function updatePage(pageNo, pageSize){
 
 		<!--查询之前将隐藏域中的信息赋给搜索框-->
-		$("#owner").val($("#hidden-owner").val());
-		$("#name").val($("#hidden-name").val());
-		$("#customerName").val($("#hidden-customerName").val());
-		$("#stage").val($("#hidden-stage").val());
-		$("#type").val($("#hidden-type").val());
-		$("#source").val($("#hidden-source").val());
-		$("#contactsName").val($("#hidden-contactsName").val());
+		$("#owner").val($.trim($("#hidden-owner").val()));
+		$("#name").val($.trim($("#hidden-name").val()));
+		$("#customerName").val($.trim($("#hidden-customerName").val()));
+		$("#stage").val($.trim($("#hidden-stage").val()));
+		$("#type").val($.trim($("#hidden-type").val()));
+		$("#source").val($.trim($("#hidden-source").val()));
+		$("#contactsName").val($.trim($("#hidden-contactsName").val()));
 
 		$.ajax({
 
@@ -63,7 +66,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				 * pageSize:每页展现的记录数
 				 *
 				 * 查询框中的
-				 * 所有者：owner
+				 * 所有者：owner 是name 也需要联表查询
 				 * 名称:name
 				 * 客户名称:?
 				 * 阶段:stage
@@ -94,7 +97,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				$.each(data.list,function (i,n){
 				html +='<tr class="active">';
 				html +='	<td><input type="checkbox" '+n.id+'/></td>';
-				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/transaction/detail.jsp\';">'+n.name+'</a></td>';
+				html +='	<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/transaction/detail.do?id='+n.id+'\';">'+n.name+'</a></td>';
 				html +='	<td>'+n.customerId+'</td>';
 				html +='	<td>'+n.stage+'</td>';
 				html +='	<td>'+n.type+'</td>';

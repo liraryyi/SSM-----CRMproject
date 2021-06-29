@@ -26,16 +26,6 @@ request.getServerPort() + request.getContextPath() + "/";
 
 	$(function (){
 
-		var json = {
-
-			<%
-			    for (String key:set){
-			    	String value = map2.get(key);
-			%>
-			"<%=key%>":<%=value%>,
-			<%}%>
-		};
-
 		//这里应该给select赋值id,使得文本框中的值默认为当前登录的用户名
 		var id = "${user.id}";
 		$("#create-transactionOwner").val(id);
@@ -78,11 +68,28 @@ request.getServerPort() + request.getContextPath() + "/";
 		 */
 		//阶段的下拉框，绑定事件，根据选中的阶段填写可能性
 		$("#create-transactionStage").change(function (){
+
+			var json = {
+
+				<%
+                    for (String key:set){
+                        String value = map2.get(key);
+                %>
+				"<%=key%>":<%=value%>,
+				<%}%>
+			};
+
 			var stage = $("#create-transactionStage").val();
 
 			var possibility = json[stage];
 
 			$("#create-possibility").val(possibility);
+		})
+
+		//为保存按钮绑定事件，点击提交表单保存一笔交易
+		$("#saveBtn").click(function (){
+
+			$("#tranForm").submit();
 		})
 	})
 
@@ -193,16 +200,16 @@ request.getServerPort() + request.getContextPath() + "/";
 	<div style="position:  relative; left: 30px;">
 		<h3>创建交易</h3>
 	  	<div style="position: relative; top: -40px; left: 70%;">
-			<button type="button" class="btn btn-primary">保存</button>
+			<button type="button" class="btn btn-primary" id="saveBtn">保存</button>
 			<button type="button" class="btn btn-default">取消</button>
 		</div>
 		<hr style="position: relative; top: -40px;">
 	</div>
-	<form class="form-horizontal" role="form" style="position: relative; top: -30px;">
+	<form class="form-horizontal" role="form" style="position: relative; top: -30px;" id="tranForm" action="workbench/transaction/saveTransaction.do" method="post">
 		<div class="form-group">
 			<label for="create-transactionOwner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-				<select class="form-control" id="create-transactionOwner" >
+				<select class="form-control" id="create-transactionOwner" name="owner">
 				  <option></option>
 					<c:forEach items="${list}" var="l">
 						<option value="${l.id}">${l.name}</option>
@@ -211,29 +218,29 @@ request.getServerPort() + request.getContextPath() + "/";
 			</div>
 			<label for="create-amountOfMoney" class="col-sm-2 control-label">金额</label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control" id="create-amountOfMoney">
+				<input type="text" class="form-control" id="create-amountOfMoney" name="money">
 			</div>
 		</div>
 		
 		<div class="form-group">
 			<label for="create-transactionName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control" id="create-transactionName">
+				<input type="text" class="form-control" id="create-transactionName" name="name">
 			</div>
 			<label for="create-expectedClosingDate" class="col-sm-2 control-label">预计成交日期<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control time" id="create-expectedClosingDate">
+				<input type="text" class="form-control time" id="create-expectedClosingDate" name="expectedDate">
 			</div>
 		</div>
 		
 		<div class="form-group">
 			<label for="create-accountName" class="col-sm-2 control-label">客户名称<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control" id="create-accountName" placeholder="支持自动补全，输入客户不存在则新建">
+				<input type="text" class="form-control" id="create-accountName" placeholder="支持自动补全，输入客户不存在则新建" name="customerName">
 			</div>
 			<label for="create-transactionStage" class="col-sm-2 control-label">阶段<span style="font-size: 15px; color: red;">*</span></label>
 			<div class="col-sm-10" style="width: 300px;">
-			  <select class="form-control" id="create-transactionStage">
+			  <select class="form-control" id="create-transactionStage" name="stage">
 			  	<option></option>
 				  <c:forEach items="${stage}" var="s">
 					  <option value="${s.value}">${s.text}</option>
@@ -245,7 +252,7 @@ request.getServerPort() + request.getContextPath() + "/";
 		<div class="form-group">
 			<label for="create-transactionType" class="col-sm-2 control-label">类型</label>
 			<div class="col-sm-10" style="width: 300px;">
-				<select class="form-control" id="create-transactionType">
+				<select class="form-control" id="create-transactionType" name="type">
 				  <option></option>
 					<c:forEach items="${transactionType}" var="t">
 						<option value="${t.value}">${t.text}</option>
@@ -261,7 +268,7 @@ request.getServerPort() + request.getContextPath() + "/";
 		<div class="form-group">
 			<label for="create-clueSource" class="col-sm-2 control-label">来源</label>
 			<div class="col-sm-10" style="width: 300px;">
-				<select class="form-control" id="create-clueSource">
+				<select class="form-control" id="create-clueSource" name="source">
 				  <option></option>
 					<c:forEach items="${source}" var="sou">
 						<option value="${sou.value}">${sou.text}</option>
@@ -271,6 +278,8 @@ request.getServerPort() + request.getContextPath() + "/";
 			<label for="create-activitySrc" class="col-sm-2 control-label">市场活动源&nbsp;&nbsp;<a href="javascript:void(0);" data-toggle="modal" data-target="#findMarketActivity"><span class="glyphicon glyphicon-search"></span></a></label>
 			<div class="col-sm-10" style="width: 300px;">
 				<input type="text" class="form-control" id="create-activitySrc">
+				<!--这种功能已经做过了，这里先写死-->
+				<input type="hidden" name="activityId" value="62831d13b67a4215b47e29a4906917fb">
 			</div>
 		</div>
 		
@@ -278,27 +287,29 @@ request.getServerPort() + request.getContextPath() + "/";
 			<label for="create-contactsName" class="col-sm-2 control-label">联系人名称&nbsp;&nbsp;<a href="javascript:void(0);" data-toggle="modal" data-target="#findContacts"><span class="glyphicon glyphicon-search"></span></a></label>
 			<div class="col-sm-10" style="width: 300px;">
 				<input type="text" class="form-control" id="create-contactsName">
+				<!--这种功能已经做过了，这里先写死-->
+				<input type="hidden" name="contactsId" value="779eb4124f054d829c6971c96f7b9a97">
 			</div>
 		</div>
 		
 		<div class="form-group">
 			<label for="create-describe" class="col-sm-2 control-label">描述</label>
 			<div class="col-sm-10" style="width: 70%;">
-				<textarea class="form-control" rows="3" id="create-describe"></textarea>
+				<textarea class="form-control" rows="3" id="create-describe" name="description"></textarea>
 			</div>
 		</div>
 		
 		<div class="form-group">
 			<label for="create-contactSummary" class="col-sm-2 control-label">联系纪要</label>
 			<div class="col-sm-10" style="width: 70%;">
-				<textarea class="form-control" rows="3" id="create-contactSummary"></textarea>
+				<textarea class="form-control" rows="3" id="create-contactSummary" name="contactSummary"></textarea>
 			</div>
 		</div>
 		
 		<div class="form-group">
 			<label for="create-nextContactTime" class="col-sm-2 control-label">下次联系时间</label>
 			<div class="col-sm-10" style="width: 300px;">
-				<input type="text" class="form-control time" id="create-nextContactTime">
+				<input type="text" class="form-control time" id="create-nextContactTime" name="nextContactTime">
 			</div>
 		</div>
 		
