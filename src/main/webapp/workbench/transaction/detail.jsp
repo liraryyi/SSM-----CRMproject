@@ -145,6 +145,8 @@ request.getServerPort() + request.getContextPath() + "/";
 					$("#editBy").html(data.tran.editBy);
 					$("#editTime").html(data.tran.editTime);
 					changeIcon(stage,i);
+					updateHistoryTran();
+
 				}else {
 					alert("变更状态失败");
 				}
@@ -162,7 +164,7 @@ request.getServerPort() + request.getContextPath() + "/";
 		var possibility = $("#possibility").html();
 
 		//当前阶段下标
-		var index = index;
+		var index = i;
 
 		//前面正常阶段和后面丢失阶段的分界点下标
 		var point = "<%=point%>";
@@ -182,7 +184,7 @@ request.getServerPort() + request.getContextPath() + "/";
 				//-------------------黑圈
 			}
 
-			for (var i = 0; i < <%=dvList.size()%>; i++) {
+			for (var i = point; i < <%=dvList.size()%>; i++) {
 
 				//当前阶段
 				if (i== index){
@@ -206,6 +208,7 @@ request.getServerPort() + request.getContextPath() + "/";
 					//-------------------黑叉
 				}
 			}
+		//如果当前阶段的可能性不为0,后两个一定是黑叉，前7个可能为绿圈，绿勾，黑圈
 		}else {
 
 			//遍历前7个
@@ -240,6 +243,18 @@ request.getServerPort() + request.getContextPath() + "/";
 					$("#"+i).css("color","#000000");
 					//--------------------黑圈
 				}
+			}
+
+			//遍历后2个
+			for (var i = point; i < <%=dvList.size()%>; i++) {
+
+				//移除掉原样式
+				$("#"+i).removeClass();
+				//添加新样式
+				$("#"+i).addClass("glyphicon glyphicon-remove mystage");
+				//为新样式添加颜色
+				$("#"+i).css("color","#000000");
+				//--------------------黑叉
 			}
 		}
 	}
@@ -432,7 +447,7 @@ request.getServerPort() + request.getContextPath() + "/";
 
 		%>
 		<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
-			  class="glyphicon glyphicon-ok-circle mystage"
+			  class="glyphicon glyphicon-record mystage"
 			  data-toggle="popover" data-placement="bottom"
 			  data-content="<%=dicValue.getText()%>" style="color: #000000;"></span>
 		-----------

@@ -190,6 +190,7 @@ public class TranController {
         tran.setExpectedDate(expectedDate);
         tran.setEditBy(editBy);
         tran.setEditTime(editTime);
+        tran.setCreateBy(((User)request.getSession().getAttribute("user")).getName());
 
         boolean flag = tranService.changeStage(tran);
 
